@@ -4,6 +4,7 @@ import sys
 import argparse
 import re
 import threading
+lock = threading.Lock()
 
 # Just some colors and shit
 white = '\033[1;97m'
@@ -34,8 +35,10 @@ parser.add_argument("--threads", help="number of threads", dest='n', type=int)
 args = parser.parse_args() #arguments to be parsed
 
 url = args.url
-n = args.n
-lock = threading.Lock()
+if args.n:
+    n = args.n
+else:
+    n = 2
 
 if args.GET:
     GET, POST = True, False
