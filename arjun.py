@@ -3,6 +3,7 @@ import requests
 import sys
 import argparse
 import re
+import threading
 
 # Just some colors and shit
 white = '\033[1;97m'
@@ -29,10 +30,12 @@ parser = argparse.ArgumentParser() #defines the parser
 parser.add_argument("-u", help="target url", dest='url')
 parser.add_argument("--get", help="use get method", dest='GET', action="store_true")
 parser.add_argument("--post", help="use post method", dest='POST', action="store_true")
-#parser.add_argument("--fast", help="uses multithreading", dest='fast', action="store_true")
+parser.add_argument("--threads", help="number of threads", dest='n', type=int)
 args = parser.parse_args() #arguments to be parsed
 
 url = args.url
+n = args.n
+lock = threading.Lock()
 
 if args.GET:
     GET, POST = True, False
@@ -58,6 +61,7 @@ def make_request(url, param, GET, POST):
 def main(url, GET, POST, o_reflection, o_http_code, o_headers):
     progress = 0
     for param in params:
+        lock.acquire()
         sys.stdout.write('\r%s Parameters Scanned: %i/%i' % (run, progress, len(params)))
         sys.stdout.flush()
         response = make_request(url, param, GET, POST)
@@ -81,8 +85,9 @@ def main(url, GET, POST, o_reflection, o_http_code, o_headers):
         if len(reasons) != 0:
             print ('\n%s I believe %s is a valid parameter due to following reason(s):' % (good, param))
             for reason in reasons:
-                print (reason)
+                print reason
         progress += 1
+        lock.release()
     print ('%s\n Scan completed!' % info)
 
 def stabilize(url):
@@ -126,4 +131,14 @@ print ('%s HTTP Response Code: %i' % (info, o_http_code))
 o_headers = str(response.headers).count('\':')
 print ('%s Number of HTTP Response Headers: %i' % (info, o_headers))
 
-main(url, GET, POST, o_reflection, o_http_code, o_headers)
+threads = []
+
+for i in range(1, n):
+    task = threading.Thread(target=main, args=(url, GET, POST, o_reflection, o_http_code, o_headers,))
+    threads.append(task)
+
+for thread in threads:
+    thread.start()
+
+for thread in threads:
+    thread.join()
