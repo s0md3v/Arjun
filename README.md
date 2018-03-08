@@ -10,7 +10,10 @@ Here's how you can scan a webpage for get parameters
 python arjun.py -u http://example.com/index.php --get
 ```
 For POST, just use the <b>--post</b> flag.
-
+To specify the number of threads you can use the <b>--threads</b> option as following:
+```
+python arjun.py -u http://example.com/index.php --get --threads 4
+```
 Here's a screenshot you can fap to:</br>
 <img src='https://i.imgur.com/7BQv5qa.png' />
 
