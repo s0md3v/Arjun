@@ -3,6 +3,7 @@ Arjun is a python script for finding hidden GET &amp; POST parameters using rege
 
 ### Dependencies
 - requests
+- threading
 
 ### Usages
 Here's how you can scan a webpage for get parameters
