@@ -88,7 +88,7 @@ def main(url, GET, POST, o_reflection, o_http_code, o_headers):
         if len(reasons) != 0:
             print ('\n%s I believe %s is a valid parameter due to following reason(s):' % (good, param))
             for reason in reasons:
-                print reason
+                print (reason)
         progress += 1
         lock.release()
     print ('%s\n Scan completed!' % info)
