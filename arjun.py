@@ -58,7 +58,7 @@ def make_request(url, param, GET, POST):
     if GET:
         return requests.get(url, params=injected)
     elif POST:
-        return requests.get(url, data=injected)
+        return requests.post(url, data=injected)
 
 
 def main(url, GET, POST, o_reflection, o_http_code, o_headers):
@@ -105,10 +105,10 @@ def stabilize(url):
         requests.get(url) # Makes request to the target
     except Exception as e: # if it fails, the target is unreachable
         if 'ssl' in str(e).lower():
-            print ('Unable to verify target\'s SSL certificate.')
+            print ('%s Unable to verify target\'s SSL certificate.' % bad)
             quit()
         else:
-            print ('Unable to connect to the target.')
+            print ('%s Unable to connect to the target.' % bad)
             quit()
     return url
 
