@@ -24,7 +24,7 @@
 - Multi-threading
 - 3 modes of detection
 - Regex powered heuristic scanning
-- Huge ass list of 3370 parameter names
+- Huge list of 3370 parameter names
 
 ### Usage
 
@@ -54,3 +54,6 @@ Using the `--headers` switch will open an interactive prompt where you can paste
 ![headers](https://image.ibb.co/jw5NgV/Screenshot-2018-10-27-18-45-32.png)
 
 > **Note:** Arjun uses `nano` as the default editor for the prompt but you can change it by tweaking `/core/prompt.py`.
+
+##### Credits
+The parameter names list has been taken from [@SecLists](https://github.com/danielmiessler/SecLists)
