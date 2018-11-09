@@ -15,8 +15,7 @@ def stabilize(url):
         requests.get(url) # Makes request to the target
     except Exception as e: # if it fails, the target is unreachable
         if 'ssl' in str(e).lower():
-            print ('%s Unable to verify target\'s SSL certificate.' % bad)
-            quit()
+            pass
         else:
             print ('%s Unable to connect to the target.' % bad)
             quit()
