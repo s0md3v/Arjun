@@ -1,147 +1,141 @@
-#!/usr/bin/env python
-import requests
-import sys
-import argparse
+#!/usr/bin/env python3
+
 import re
-import threading
-lock = threading.Lock()
+import sys
+import requests
+import argparse
+import concurrent.futures
+from urllib.parse import unquote
 
-# Just some colors and shit
-white = '\033[1;97m'
-green = '\033[1;32m'
-red = '\033[1;31m'
-yellow = '\033[1;33m'
-end = '\033[1;m'
-info = '\033[1;33m[!]\033[1;m'
-que =  '\033[1;34m[?]\033[1;m'
-bad = '\033[1;31m[-]\033[1;m'
-good = '\033[1;32m[+]\033[1;m'
-run = '\033[1;97m[~]\033[1;m'
+from core.prompt import prompt
+from core.requester import requester
+from core.utils import e, d, stabilize, flattenParams, randomString
+from core.colors import red, green, white, end, info, bad, good, run
 
-print ("""%s    _         
+print ('''%s    _         
    /_| _ '    
-  (  |/ /(//) %s(v0.8 beta)%s
-      _/      %s""" % (green, white, green, end))
+  (  |/ /(//) %sv1.0%s
+      _/      %s''' % (green, white, green, end))
 
-if sys.version_info < (3, 0):
-    input = raw_input
 
 parser = argparse.ArgumentParser() #defines the parser
 #Arguements that can be supplied
-parser.add_argument("-u", help="target url", dest='url')
-parser.add_argument("--get", help="use get method", dest='GET', action="store_true")
-parser.add_argument("--post", help="use post method", dest='POST', action="store_true")
-parser.add_argument("--threads", help="number of threads", dest='n', type=int)
+parser.add_argument('-u', help='target url', dest='url')
+parser.add_argument('-d', help='request delay', dest='delay', type=int)
+parser.add_argument('-t', help='number of threads', dest='threads', type=int)
+parser.add_argument('-f', help='file path', dest='file')
+parser.add_argument('--get', help='use get method', dest='GET', action='store_true')
+parser.add_argument('--post', help='use post method', dest='POST', action='store_true')
+parser.add_argument('--headers', help='http headers prompt', dest='headers', action='store_true')
 args = parser.parse_args() #arguments to be parsed
 
 url = args.url
-if args.n:
-    n = args.n
-else:
-    n = 2
+file = args.file or './db/params.txt'
+headers = args.headers
+delay = args.delay or 0
+threadCount = args.threads or 2
+
+def extractHeaders(headers):
+    sortedHeaders = {}
+    matches = findall(r'(.*):\s(.*)', headers)
+    for match in matches:
+        header = match[0]
+        value = match[1]
+        try:
+            if value[-1] == ',':
+                value = value[:-1]
+            sortedHeaders[header] = value
+        except IndexError:
+            pass
+    return sortedHeaders
+
+if headers:
+    headers = extractHeaders(prompt())
 
 if args.GET:
-    GET, POST = True, False
-if args.POST:
-    GET, POST = False, True
+    GET = True
+else:
+    GET = False
 
-fuzz = 'd3v3v'
+headers = {}
 
-params = []
-with open('params.txt', 'r') as param_list:
-    for param in param_list:
-        params.append(param.strip('\n'))
-
-
-def make_request(url, param, GET, POST):
-    injected = {param : fuzz}
-    if GET:
-        return requests.get(url, params=injected)
-    elif POST:
-        return requests.post(url, data=injected)
+paramList = []
+try:
+    with open(file, 'r') as file:
+        for line in file:
+            paramList.append(line.strip('\n'))
+except FileNotFoundError:
+    print ('%s The specified file doesn\'t exist' % bad)
+    quit()
 
 
-def main(url, GET, POST, o_reflection, o_http_code, o_headers):
-    progress = 0
-    for param in params:
-        lock.acquire()
-        sys.stdout.write('\r%s Parameters Scanned: %i/%i' % (run, progress, len(params)))
-        sys.stdout.flush()
-        response = make_request(url, param, GET, POST)
-        content = response.text.replace('?%s=' % param, '')
-        if '\'%s\'' % fuzz in content or '"%s"' % fuzz in content or ' %s ' % fuzz in content:
-            content_length = len(content) - content.count(fuzz) * len(fuzz)
-            reflection = True
-        else:
-            reflection = False
-            content_length = len(content)
-        http_code = response.status_code
-        headers = str(response.headers).count('\':')
-        reasons = []
-        if http_code != o_http_code:
-            reasons.append('%s Different HTTP response code recieved.' % info)
-        if reflection != o_reflection:
-            if reflection:
-                reasons.append('%s Parameter\'s value was reflected in webpage' % info)
-        if headers != o_headers:
-            reasons.append('%s Different HTTP headers recieved.' % info)
-        if len(reasons) != 0:
-            print ('\n%s I believe %s is a valid parameter due to following reason(s):' % (good, param))
-            for reason in reasons:
-                print (reason)
-        progress += 1
-        lock.release()
-    print ('%s\n Scan completed!' % info)
-
-def stabilize(url):
-    if 'http' not in url:
-        try:
-            requests.get('http://%s' % url) # Makes request to the target with http schema
-            url = 'http://%s' % url
-        except: # if it fails, maybe the target uses https schema
-            url = 'https://%s' % url
-
-    try:
-        requests.get(url) # Makes request to the target
-    except Exception as e: # if it fails, the target is unreachable
-        if 'ssl' in str(e).lower():
-            print ('%s Unable to verify target\'s SSL certificate.' % bad)
-            quit()
-        else:
-            print ('%s Unable to connect to the target.' % bad)
-            quit()
-    return url
+def heuristic(response, paramList):
+    done = []
+    forms = re.findall(r'(?i)(?s)<form.*?</form.*?>', response)
+    for form in forms:
+        method = re.search(r'(?i)method=[\'"](.*?)[\'"]', form)
+        inputs = re.findall(r'(?i)(?s)<input.*?>', response)
+        for inp in inputs:
+            inpName = re.search(r'(?i)name=[\'"](.*?)[\'"]', inp)
+            if inpName:
+                inpType = re.search(r'(?i)type=[\'"](.*?)[\'"]', inp)
+                inpValue = re.search(r'(?i)value=[\'"](.*?)[\'"]', inp)
+                inpName = d(e(inpName.group(1)))
+                if inpName not in done:
+                    if inpName in paramList:
+                        paramList.remove(inpName)
+                    done.append(inpName)
+                    paramList.insert(0, inpName)
+                    print ('%s Heuristic found a potenial parameter: %s%s%s' % (good, green, inpName, end))
+                    print ('%s Prioritizing it' % good)
 
 url = stabilize(url)
 
-print ('%s Lets see how target deals with a non-existent parameter' % run)
-response = make_request(url, '83bxAm', GET, POST)
-o_content = response.text.replace('?%s=' % '83bxAm', '')
-matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', o_content)
-for match in matches:
-    found_param = match.encode('utf-8').split('name=')[1].split(' ')[0].replace('\'', '').replace('"', '')
-    print ('%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (good, green, found_param, end))
-    params.insert(0, found_param)
-if '\'%s\'' % fuzz in o_content or '"%s"' % fuzz in o_content or ' %s ' % fuzz in o_content:
-    o_count = o_content.count(fuzz)
-    print ('%s Parameter\'s value got reflected %i time(s) in webpage.' % (info, o_count))
-    o_reflection = True
-else:
-    print ('%s Parameter\'s value didn\'t get reflected in webpage.' % info)
-    o_reflection = False
-o_http_code = response.status_code
-print ('%s HTTP Response Code: %i' % (info, o_http_code))
-o_headers = str(response.headers).count('\':')
-print ('%s Number of HTTP Response Headers: %i' % (info, o_headers))
+print ('%s Analysing the content of the webpage' % run)
+firstResponse = requester(url, '', headers, GET, delay)
 
-threads = []
+print ('%s Now lets see how target deals with a non-existent parameter' % run)
 
-for i in range(1, n):
-    task = threading.Thread(target=main, args=(url, GET, POST, o_reflection, o_http_code, o_headers,))
-    threads.append(task)
+originalFuzz = randomString(6)
+data = {originalFuzz : originalFuzz[::-1]}
+response = requester(url, data, headers, GET, delay)
+reflections = response.text.count(originalFuzz[::-1])
+print ('%s Reflections: %s%i%s' % (info, green, reflections, end))
 
-for thread in threads:
-    thread.start()
+originalResponse = response.text.replace(originalFuzz + '=' + originalFuzz[::-1], '')
+originalCode = response.status_code
+print ('%s Response Code: %s%i%s' % (info, green, originalCode, end))
 
-for thread in threads:
-    thread.join()
+newLength = len(response.text) - len(flattenParams(data))
+print ('%s Content Length: %s%i%s' % (info, green, newLength, end))
+
+print ('%s Parsing webpage for potenial parameters' % run)
+heuristic(firstResponse.text, paramList)
+
+fuzz = randomString(8)
+data = {fuzz : fuzz[::-1]}
+responseMulti = requester(url, data, headers, GET, delay)
+multiplier = int((len(responseMulti.text.replace(fuzz + '=' + fuzz[::-1], '')) - len(response.text.replace(originalFuzz + '=' + originalFuzz[::-1], ''))) / 2)
+print ('%s Content Length Multiplier: %s%i%s' % (info, green, multiplier, end))
+
+def bruter(param, originalResponse, originalCode, multiplier, reflections, delay, headers, url, GET): 
+    fuzz = randomString(6)
+    data = {param : fuzz}
+    response = requester(url, data, headers, GET, delay)
+    newReflections = response.text.count(fuzz)
+    if response.status_code != originalCode:
+        print ('%s Found a valid parameter: %s%s%s' % (good, green, param, end))
+        print ('%s Reason: Different response code' % info)
+    elif reflections != newReflections:
+        print ('%s Found a valid parameter: %s%s%s' % (good, green, param, end))
+        print ('%s Reason: Different number of reflections' % info)
+    elif len(response.text.replace(param + '=' + fuzz, '')) != (len(originalResponse.text.replace(originalFuzz + '=' + originalFuzz[::-1], '')) + (len(param) * multiplier)):
+        print ('%s Found a valid parameter: %s%s%s' % (good, green, param, end))
+        print ('%s Reason: Different content length' % info)
+
+threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
+futures = (threadpool.submit(bruter, param, originalResponse, originalCode, multiplier, reflections, delay, headers, url, GET) for param in paramList)
+for i, _ in enumerate(concurrent.futures.as_completed(futures)):
+    if i + 1 == len(paramList) or (i + 1) % threadCount == 0:
+        print('%s Progress: %i/%i' % (info, i + 1, len(paramList)), end='\r')
+print('\n%s Scan Completed' % info)
