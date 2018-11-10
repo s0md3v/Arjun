@@ -49,7 +49,7 @@ You can delay the request by using the `-d` option as follows:
 `python3 arjun.py  -u https://api.example.com/endpoint --get -d 2`
 
 #### Adding HTTP Headers
-Using the `--headers` switch will open an interactive prompt where you can paste your headers. Press `Ctrl + S` to save and procced.
+Using the `--headers` switch will open an interactive prompt where you can paste your headers. Press `Ctrl + S` to save and `Ctrl + X` to procced.
 
 ![headers](https://image.ibb.co/jw5NgV/Screenshot-2018-10-27-18-45-32.png)
 
