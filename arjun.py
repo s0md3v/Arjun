@@ -37,7 +37,7 @@ threadCount = args.threads or 2
 
 def extractHeaders(headers):
     sortedHeaders = {}
-    matches = findall(r'(.*):\s(.*)', headers)
+    matches = re.findall(r'(.*):\s(.*)', headers)
     for match in matches:
         header = match[0]
         value = match[1]
