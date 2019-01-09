@@ -14,7 +14,10 @@
     <img src="https://img.shields.io/github/release/s0md3v/Arjun.svg">
   </a>
   <a href="https://github.com/s0md3v/Arjun/issues?q=is%3Aissue+is%3Aclosed">
-      <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/Arjun.svg">
+    <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/Arjun.svg">
+  </a>
+  <a href="https://houndci.com">
+    <img src="https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg" alt="Hound">
   </a>
 </p>
 
