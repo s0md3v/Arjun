@@ -23,10 +23,10 @@
 ### Features
 - Multi-threading
 - 3 modes of detection
-- < 30 seconds of runtime
+- A typical scan takes 30 seconds
 - Regex powered heuristic scanning
-- Huge list of 3370 parameter names
-- Makes just 10-15 requests to the target
+- Huge list of 25,980 parameter names
+- Makes just 30-35 requests to the target
 
 ### Usage
 
@@ -58,4 +58,4 @@ Using the `--headers` switch will open an interactive prompt where you can paste
 > **Note:** Arjun uses `nano` as the default editor for the prompt but you can change it by tweaking `/core/prompt.py`.
 
 ##### Credits
-The parameter names list has been taken from [@SecLists](https://github.com/danielmiessler/SecLists)
+The parameter names are taken from [@SecLists](https://github.com/danielmiessler/SecLists).
