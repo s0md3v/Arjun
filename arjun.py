@@ -160,7 +160,7 @@ def narrower(oldParamList):
         print('%s Processing: %i/%-6i' % (info, i + 1, len(oldParamList)), end='\r')
     return newParamList
 
-toBeChecked = slicer(paramList, 10)
+toBeChecked = slicer(paramList, 25)
 foundParams = []
 while True:
     toBeChecked = narrower(toBeChecked)
