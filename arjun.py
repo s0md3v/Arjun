@@ -14,7 +14,7 @@ from core.utils import e, d, stabilize, flattenParams, randomString, slicer, joi
 
 print ('''%s    _         
    /_| _ '    
-  (  |/ /(//) %sv1.1%s
+  (  |/ /(//) %sv1.2-beta%s
       _/      %s''' % (green, white, green, end))
 
 
@@ -160,7 +160,7 @@ def narrower(oldParamList):
         print('%s Processing: %i/%-6i' % (info, i + 1, len(oldParamList)), end='\r')
     return newParamList
 
-toBeChecked = slicer(paramList, 100)
+toBeChecked = slicer(paramList, 2)
 foundParams = []
 while True:
     toBeChecked = narrower(toBeChecked)
