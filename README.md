@@ -18,13 +18,15 @@
   </a>
 </p>
 
-![demo](https://image.ibb.co/gDETnq/Screenshot-2018-11-10-04-55-31.png)
+![demo](https://i.ibb.co/dQV36LG/Screenshot-2019-03-02-07-48-14.png)
 
 ### Features
 - Multi-threading
 - 3 modes of detection
+- < 30 seconds of runtime
 - Regex powered heuristic scanning
 - Huge list of 3370 parameter names
+- Makes just 10-15 requests to the target
 
 ### Usage
 
