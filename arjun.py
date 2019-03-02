@@ -9,12 +9,12 @@ from urllib.parse import unquote
 
 from core.prompt import prompt
 from core.requester import requester
-from core.utils import e, d, stabilize, flattenParams, randomString
 from core.colors import red, green, white, end, info, bad, good, run
+from core.utils import e, d, stabilize, flattenParams, randomString, slicer, joiner, unityExtracter
 
 print ('''%s    _         
    /_| _ '    
-  (  |/ /(//) %sv1.0%s
+  (  |/ /(//) %sv1.1%s
       _/      %s''' % (green, white, green, end))
 
 
@@ -102,6 +102,7 @@ response = requester(url, data, headers, GET, delay)
 reflections = response.text.count(originalFuzz[::-1])
 print ('%s Reflections: %s%i%s' % (info, green, reflections, end))
 
+originalHTML = response.text
 originalResponse = response.text.replace(originalFuzz + '=' + originalFuzz[::-1], '')
 originalCode = response.status_code
 print ('%s Response Code: %s%i%s' % (info, green, originalCode, end))
@@ -118,6 +119,15 @@ responseMulti = requester(url, data, headers, GET, delay)
 multiplier = int((len(responseMulti.text.replace(fuzz + '=' + fuzz[::-1], '')) - len(response.text.replace(originalFuzz + '=' + originalFuzz[::-1], ''))) / 2)
 print ('%s Content Length Multiplier: %s%i%s' % (info, green, multiplier, end))
 
+def quickBruter(params, originalResponse, originalCode, delay, headers, url, GET): 
+    newResponse = requester(url, joiner(params), headers, GET, delay)
+    if newResponse.status_code != originalCode:
+        return params
+    elif originalResponse and originalResponse != newResponse.text:
+        return params
+    else:
+        return False
+
 def bruter(param, originalResponse, originalCode, multiplier, reflections, delay, headers, url, GET): 
     fuzz = randomString(6)
     data = {param : fuzz}
@@ -133,9 +143,37 @@ def bruter(param, originalResponse, originalCode, multiplier, reflections, delay
         print ('%s Found a valid parameter: %s%s%s' % (good, green, param, end))
         print ('%s Reason: Different content length' % info)
 
+if firstResponse.text != originalHTML:
+    originalHTML = False
+
+print ('%s Performing heuristic level checks' % run)
+
+def narrower(oldParamList):
+    newParamList = []
+    potenialParameters = 0
+    threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
+    futures = (threadpool.submit(quickBruter, part, originalHTML, originalCode, delay, headers, url, GET) for part in oldParamList)
+    for i, result in enumerate(concurrent.futures.as_completed(futures)):
+        if result.result():
+            potenialParameters += 1
+            newParamList.extend(slicer(result.result()))
+        print('%s Processing: %i/%-6i' % (info, i + 1, len(oldParamList)), end='\r')
+    return newParamList
+
+toBeChecked = slicer(paramList, 100)
+foundParams = []
+while True:
+    toBeChecked = narrower(toBeChecked)
+    toBeChecked = unityExtracter(toBeChecked, foundParams)
+    if not toBeChecked:
+        break
+
+if foundParams:
+    print ('%s Heuristic found %i potenial parameters.' % (info, len(foundParams)))
+    paramList = foundParams
+
 threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
 futures = (threadpool.submit(bruter, param, originalResponse, originalCode, multiplier, reflections, delay, headers, url, GET) for param in paramList)
 for i, _ in enumerate(concurrent.futures.as_completed(futures)):
-    if i + 1 == len(paramList) or (i + 1) % threadCount == 0:
-        print('%s Progress: %i/%i' % (info, i + 1, len(paramList)), end='\r')
+    print('%s Progress: %i/%i' % (info, i + 1, len(paramList)), end='\r')
 print('\n%s Scan Completed' % info)
