@@ -4,9 +4,18 @@ import random
 import requests
 from core.colors import bad
 
+def unityExtracter(arrayOfArrays, usable):
+    remainingArray = []
+    for array in arrayOfArrays:
+        if len(array) == 1:
+            usable.append(array[0])
+        else:
+            remainingArray.append(array)
+    return remainingArray
+
 def slicer(array, n=2):
     k, m = divmod(len(array), n)
-    return (array[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
+    return list(array[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n))
 
 def joiner(array):
     params = {}
