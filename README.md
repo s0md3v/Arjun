@@ -22,7 +22,7 @@
 
 ### Features
 - Multi-threading
-- 3 modes of detection
+- 4 modes of detection
 - A typical scan takes 30 seconds
 - Regex powered heuristic scanning
 - Huge list of 25,980 parameter names
@@ -49,6 +49,17 @@ Arjun uses 2 threads by default but you can tune its performance according to yo
 You can delay the request by using the `-d` option as follows:
 
 `python3 arjun.py  -u https://api.example.com/endpoint --get -d 2`
+
+#### Including presistent data
+Let's say you have an API key that you need to send with every request, to tell Arjun to do that you can use the `--include` option as follows:
+
+`python3 arjun.py  -u https://api.example.com/endpoint --get --include 'api_key=xxxxx`
+
+OR
+
+`python3 arjun.py  -u https://api.example.com/endpoint --get --include '{"api_key":"xxxxx"}`
+
+To include multiple parameters, use `&` to seperate them or pass them as a valid json object.
 
 #### Adding HTTP Headers
 Using the `--headers` switch will open an interactive prompt where you can paste your headers. Press `Ctrl + S` to save and `Ctrl + X` to procced.
