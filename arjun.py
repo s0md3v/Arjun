@@ -5,6 +5,7 @@ import sys
 import requests
 import argparse
 import concurrent.futures
+import json
 from urllib.parse import unquote
 
 from core.prompt import prompt
@@ -24,6 +25,7 @@ parser.add_argument('-u', help='target url', dest='url')
 parser.add_argument('-d', help='request delay', dest='delay', type=int)
 parser.add_argument('-t', help='number of threads', dest='threads', type=int)
 parser.add_argument('-f', help='file path', dest='file')
+parser.add_argument('--json', help='Path for the JSON output file')
 parser.add_argument('--get', help='use get method', dest='GET', action='store_true')
 parser.add_argument('--post', help='use post method', dest='POST', action='store_true')
 parser.add_argument('--headers', help='http headers prompt', dest='headers', action='store_true')
@@ -90,7 +92,7 @@ def heuristic(response, paramList):
                         paramList.remove(inpName)
                     done.append(inpName)
                     paramList.insert(0, inpName)
-                    print ('%s Heuristic found a potenial parameter: %s%s%s' % (good, green, inpName, end))
+                    print ('%s Heuristic found a potential parameter: %s%s%s' % (good, green, inpName, end))
                     print ('%s Prioritizing it' % good)
 
 url = stabilize(url)
@@ -184,10 +186,11 @@ while True:
         break
 
 if foundParams:
-    print ('%s Heuristic found %i potenial parameters.' % (info, len(foundParams)))
+    print ('%s Heuristic found %i potential parameters.' % (info, len(foundParams)))
     paramList = foundParams
 
 finalResult = []
+jsonResult = []
 
 threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
 futures = (threadpool.submit(bruter, param, originalResponse, originalCode, factors, include, reflections, delay, headers, url, GET) for param in foundParams)
@@ -200,3 +203,11 @@ for each in finalResult:
     for param, reason in each.items():
         print ('%s Valid parameter found: %s%s%s' % (good, green, param, end))
         print ('%s Reason: %s' % (info, reason))
+        jsonResult.append({"param": param, "reason": reason})
+
+
+# Finally, export to json
+if args.json and jsonResult:
+    print("Saving output to JSON file in %s" % args.json)
+    with open(str(args.json), 'w') as json_output:
+        json.dump({"results":jsonResult}, json_output, sort_keys=True, indent=4,)
