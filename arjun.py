@@ -25,7 +25,7 @@ parser.add_argument('-u', help='target url', dest='url')
 parser.add_argument('-d', help='request delay', dest='delay', type=int)
 parser.add_argument('-t', help='number of threads', dest='threads', type=int)
 parser.add_argument('-f', help='file path', dest='file')
-parser.add_argument('--json', help='Path for the JSON output file')
+parser.add_argument('-o', help='Path for the output file', dest='output_file')
 parser.add_argument('--get', help='use get method', dest='GET', action='store_true')
 parser.add_argument('--post', help='use post method', dest='POST', action='store_true')
 parser.add_argument('--headers', help='http headers prompt', dest='headers', action='store_true')
@@ -207,7 +207,7 @@ for each in finalResult:
 
 
 # Finally, export to json
-if args.json and jsonResult:
-    print("Saving output to JSON file in %s" % args.json)
-    with open(str(args.json), 'w') as json_output:
+if args.output_file and jsonResult:
+    print("Saving output to JSON file in %s" % args.output_file)
+    with open(str(args.output_file), 'w') as json_output:
         json.dump({"results":jsonResult}, json_output, sort_keys=True, indent=4,)
