@@ -7,7 +7,7 @@
   <br>
 </h1>
 
-<h4 align="center">Parameter Discovery Suite</h4>
+<h4 align="center">HTTP Parameter Discovery Suite</h4>
 
 <p align="center">
   <a href="https://github.com/s0md3v/Arjun/releases">
@@ -53,11 +53,11 @@ You can delay the request by using the `-d` option as follows:
 #### Including presistent data
 Let's say you have an API key that you need to send with every request, to tell Arjun to do that you can use the `--include` option as follows:
 
-`python3 arjun.py  -u https://api.example.com/endpoint --get --include 'api_key=xxxxx`
+`python3 arjun.py  -u https://api.example.com/endpoint --get --include 'api_key=xxxxx'`
 
 OR
 
-`python3 arjun.py  -u https://api.example.com/endpoint --get --include '{"api_key":"xxxxx"}`
+`python3 arjun.py  -u https://api.example.com/endpoint --get --include '{"api_key":"xxxxx"}'`
 
 To include multiple parameters, use `&` to seperate them or pass them as a valid json object.
 
