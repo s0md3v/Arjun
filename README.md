@@ -61,6 +61,11 @@ OR
 
 To include multiple parameters, use `&` to seperate them or pass them as a valid json object.
 
+#### JSON Output
+You can save the result in a JSON format by using the `-o` as follows:
+
+`python3 arjun.py -u https://api.example.com/endpoint --get -o result.json`
+
 #### Adding HTTP Headers
 Using the `--headers` switch will open an interactive prompt where you can paste your headers. Press `Ctrl + S` to save and `Ctrl + X` to procced.
 
