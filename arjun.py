@@ -125,7 +125,7 @@ if len(firstResponse.text) == len(originalResponse):
 elif len(removeTags(firstResponse.text)) == len(plainText):
     factors['samePlainText'] = True
 
-print ('%s Parsing webpage for potenial parameters' % run)
+print ('%s Parsing webpage for potential parameters' % run)
 heuristic(firstResponse.text, paramList)
 
 fuzz = randomString(8)
