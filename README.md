@@ -18,7 +18,7 @@
   </a>
 </p>
 
-![demo](https://i.ibb.co/dQV36LG/Screenshot-2019-03-02-07-48-14.png)
+![demo](https://i.ibb.co/n0XdvZW/Screenshot-2019-04-07-20-08-04.png)
 
 ### Features
 - Multi-threading
