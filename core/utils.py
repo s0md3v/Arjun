@@ -18,7 +18,8 @@ def log(data, mode='', show=False):
             print (data, end=suffix)
 
 def extractHeaders(headers):
-    sortedHeaders = {}
+    headers = headers.replace('\\n', '\n')
+    sorted_headers = {}
     matches = re.findall(r'(.*):\s(.*)', headers)
     for match in matches:
         header = match[0]
@@ -26,10 +27,10 @@ def extractHeaders(headers):
         try:
             if value[-1] == ',':
                 value = value[:-1]
-            sortedHeaders[header] = value
+            sorted_headers[header] = value
         except IndexError:
             pass
-    return sortedHeaders
+    return sorted_headers
 
 def unityExtracter(arrayOfArrays, usable):
     "extracts the value from single valued list from a list of lists"
