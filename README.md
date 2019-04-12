@@ -34,6 +34,7 @@ Want to know how Arjun does that? [Here's how](https://github.com/s0md3v/Arjun/w
 ### Features
 - Multi-threading
 - Thorough detection
+- `GET/POST/JSON` methods supported
 - A typical scan takes 30 seconds
 - Regex powered heuristic scanning
 - Huge list of 25,980 parameter names
