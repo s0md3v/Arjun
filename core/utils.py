@@ -3,7 +3,33 @@ import json
 import string
 import random
 import requests
+
+import core.config
 from core.colors import bad
+
+def log(data, mode='', show=False):
+    suffix = '\n'
+    if mode == 'run':
+        suffix = '\r'
+    if not core.config.globalVariables['url_file']:
+        print (data, end=suffix)
+    else:
+        if show:
+            print (data, end=suffix)
+
+def extractHeaders(headers):
+    sortedHeaders = {}
+    matches = re.findall(r'(.*):\s(.*)', headers)
+    for match in matches:
+        header = match[0]
+        value = match[1]
+        try:
+            if value[-1] == ',':
+                value = value[:-1]
+            sortedHeaders[header] = value
+        except IndexError:
+            pass
+    return sortedHeaders
 
 def unityExtracter(arrayOfArrays, usable):
     "extracts the value from single valued list from a list of lists"
