@@ -1,4 +1,4 @@
-#### 1.
+#### 1.4
 - Added `JSON` support
 - Fixed a major bug in detection logic
 - `-o` option to save result to a file
