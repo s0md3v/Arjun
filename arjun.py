@@ -116,7 +116,7 @@ def heuristic(response, paramList):
                     log('%s Heuristic found a potential parameter: %s%s%s' % (good, green, inpName, end))
                     log('%s Prioritizing it' % good)
 
-def quickBruter(params, originalResponse, originalCode, factors, include, delay, headers, url, GET):
+def quickBruter(params, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET):
     joined = joiner(params, include)
     newResponse = requester(url, joined, headers, GET, delay)
     if newResponse.status_code != originalCode:
@@ -125,9 +125,9 @@ def quickBruter(params, originalResponse, originalCode, factors, include, delay,
         return params
     elif factors['samePlainText'] and len(removeTags(originalResponse)) != len(removeTags(newResponse.text)):
         return params
-    elif not factors['reflections']:
+    elif True:
         for param, value in joined.items():
-            if param not in include and value in newResponse.text:
+            if param not in include and newResponse.text.count(value) != reflections:
                 return params
     else:
         return False
@@ -152,10 +152,10 @@ def bruter(param, originalResponse, originalCode, factors, include, reflections,
     else:
         return None
 
-def narrower(oldParamList, url, include, headers, GET, delay, originalResponse, originalCode, factors, threadCount):
+def narrower(oldParamList, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount):
     newParamList = []
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(quickBruter, part, originalResponse, originalCode, factors, include, delay, headers, url, GET) for part in oldParamList)
+    futures = (threadpool.submit(quickBruter, part, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET) for part in oldParamList)
     for i, result in enumerate(concurrent.futures.as_completed(futures)):
         if result.result():
             newParamList.extend(slicer(result.result()))
@@ -187,13 +187,11 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
     log('%s Content Length: %s%i%s' % (info, green, newLength, end))
     log('%s Plain-text Length: %s%i%s' % (info, green, plainTextLength, end))
 
-    factors = {'reflections': False, 'sameHTML': False, 'samePlainText': False}
+    factors = {'sameHTML': False, 'samePlainText': False}
     if len(firstResponse.text) == len(originalResponse):
         factors['sameHTML'] = True
     elif len(removeTags(firstResponse.text)) == len(plainText):
         factors['samePlainText'] = True
-    elif reflections:
-        factors['reflections'] = True
 
     log('%s Parsing webpage for potential parameters' % run)
     heuristic(firstResponse.text, paramList)
@@ -207,7 +205,7 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
     toBeChecked = slicer(paramList, 50)
     foundParams = []
     while True:
-        toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, factors, threadCount)
+        toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount)
         toBeChecked = unityExtracter(toBeChecked, foundParams)
         if not toBeChecked:
             break
