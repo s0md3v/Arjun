@@ -138,9 +138,9 @@ def bruter(param, originalResponse, originalCode, factors, include, reflections,
         reason = 'Different response code'
     elif reflections != newReflections:
         reason = 'Different number of reflections'
-    elif not factors['sameHTML'] and len(response.text) != (len(originalResponse)):
+    elif factors['sameHTML'] and len(response.text) != (len(originalResponse)):
         reason = 'Different content length'
-    elif not factors['samePlainText'] and len(removeTags(response.text)) != (len(removeTags(originalResponse))):
+    elif factors['samePlainText'] and len(removeTags(response.text)) != (len(removeTags(originalResponse))):
         reason = 'Different plain-text content length'
     if reason:
         return {param : reason}
