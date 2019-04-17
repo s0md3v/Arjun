@@ -16,6 +16,7 @@
   <a href="https://github.com/s0md3v/Arjun/issues?q=is%3Aissue+is%3Aclosed">
       <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/Arjun.svg">
   </a>
+  <img src="https://img.shields.io/badge/god%20level-shit-green.svg">
 </p>
 
 ![demo](https://i.ibb.co/0V6ymPy/Screenshot-2019-04-12-18-17-49.png)
