@@ -117,13 +117,18 @@ def heuristic(response, paramList):
                     log('%s Prioritizing it' % good)
 
 def quickBruter(params, originalResponse, originalCode, factors, include, delay, headers, url, GET):
-    newResponse = requester(url, joiner(params, include), headers, GET, delay)
+    joined = joiner(params, include)
+    newResponse = requester(url, joined, headers, GET, delay)
     if newResponse.status_code != originalCode:
         return params
     elif factors['sameHTML'] and len(newResponse.text) != (len(originalResponse)):
         return params
     elif factors['samePlainText'] and len(removeTags(originalResponse)) != len(removeTags(newResponse.text)):
         return params
+    elif not factors['reflections']:
+        for param, value in joined.items():
+            if param not in include and value in newResponse.text:
+                return params
     else:
         return False
 
@@ -182,11 +187,13 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
     log('%s Content Length: %s%i%s' % (info, green, newLength, end))
     log('%s Plain-text Length: %s%i%s' % (info, green, plainTextLength, end))
 
-    factors = {'sameHTML': False, 'samePlainText': False}
+    factors = {'reflections': False, 'sameHTML': False, 'samePlainText': False}
     if len(firstResponse.text) == len(originalResponse):
         factors['sameHTML'] = True
     elif len(removeTags(firstResponse.text)) == len(plainText):
         factors['samePlainText'] = True
+    elif reflections:
+        factors['reflections'] = True
 
     log('%s Parsing webpage for potential parameters' % run)
     heuristic(firstResponse.text, paramList)
@@ -197,7 +204,7 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
 
     log('%s Performing heuristic level checks' % run)
 
-    toBeChecked = slicer(paramList, 25)
+    toBeChecked = slicer(paramList, 50)
     foundParams = []
     while True:
         toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, factors, threadCount)
@@ -219,13 +226,15 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
             finalResult.append(result.result())
         log('%s Progress: %i/%i' % (info, i + 1, len(paramList)), mode='run')
 
-    log('%s Scan Completed' % info)
+    log('%s Scan Completed    ' % info)
 
     for each in finalResult:
         for param, reason in each.items():
             log('%s Valid parameter found: %s%s%s' % (good, green, param, end))
             log('%s Reason: %s' % (info, reason))
             jsonResult.append({"param": param, "reason": reason})
+    if not jsonResult:
+        log('%s Unable to verify existence of parameters detected by heuristic' % bad)
     return jsonResult
 
 finalResult = []
