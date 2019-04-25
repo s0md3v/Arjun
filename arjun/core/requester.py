@@ -1,4 +1,5 @@
 """Handle the requests."""
+import json
 import random
 import time
 import warnings
@@ -16,8 +17,10 @@ USER_AGENTS = [
 ]
 
 
-def requester(url, data, headers, get, delay):
+def requester(url, data, headers, get, delay, variables):
     """Handle the requests."""
+    if variables["json_data"]:
+        data = json.dumps(data)
     time.sleep(delay)
 
     if headers:
@@ -25,11 +28,10 @@ def requester(url, data, headers, get, delay):
             headers["User-Agent"] = random.choice(USER_AGENTS)
     if get:
         response = requests.get(
-            url, params=data, headers=headers, verify=False, timeout=10
+            url, params=data, headers=headers, verify=False
         )
+    elif variables.get("json_data"):
+        response = requests.post(url, json=data, headers=headers, verify=False)
     else:
-        response = requests.post(
-            url, data=data, headers=headers, verify=False, timeout=10
-        )
-
+        response = requests.post(url, data=data, headers=headers, verify=False)
     return response

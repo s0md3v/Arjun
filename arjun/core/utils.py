@@ -10,20 +10,34 @@ import requests
 from arjun.core.colors import bad, end, good, green, info
 
 
+def log(data, mode="", show=False, variables={}):
+    """Handle the log messages."""
+    suffix = "\n"
+    if mode == "run":
+        suffix = "\r"
+    if not variables.get("url_file"):
+        print(data, end=suffix)
+    else:
+        if show:
+            print(data, end=suffix)
+
+
 def narrower(
     brute_forcer,
+    old_param_list,
+    url,
+    include,
+    headers,
+    get,
+    delay,
     original_response,
     original_code,
+    reflections,
     factors,
-    include,
-    delay,
-    headers,
-    url,
-    get,
-    old_param_list,
     thread_count,
+    variables,
 ):
-    """Narrow the parameters."""
+    """Search for the narrow."""
     new_param_list = []
     potential_parameters = 0
     threadpool = concurrent.futures.ThreadPoolExecutor(
@@ -35,12 +49,14 @@ def narrower(
             part,
             original_response,
             original_code,
+            reflections,
             factors,
             include,
             delay,
             headers,
             url,
             get,
+            variables,
         )
         for part in old_param_list
     )
@@ -57,6 +73,7 @@ def narrower(
 
 def extract_headers(headers):
     """Extract the HTTP headers."""
+    headers = headers.replace("\\n", "\n")
     sorted_headers = {}
     matches = re.findall(r"(.*):\s(.*)", headers)
     for match in matches:
@@ -68,6 +85,7 @@ def extract_headers(headers):
             sorted_headers[header] = value
         except IndexError:
             pass
+
     return sorted_headers
 
 
@@ -130,29 +148,29 @@ def stabilize(url):
     if "http" not in url:
         try:
             requests.get(
-                "http://%s" % url
-            )  # Makes request to the target with http schema
-            url = "http://%s" % url
-        except:  # if it fails, maybe the target uses https schema
-            url = "https://%s" % url
+                "http://{}".format(url)
+            )  # Makes request to the target with HTTP schema
+            url = "http://{}".format(url)
+        except:  # if it fails, maybe the target uses HTTPS schema
+            url = "https://{}".format(url)
 
     try:
         requests.get(url)  # Makes request to the target
-    except Exception as e:  # if it fails, the target is unreachable
-        if "ssl" in str(e).lower():
+    except Exception as error:  # If it fails, the target is unreachable
+        if "ssl" in str(error).lower():
             pass
         else:
-            print("%s Unable to connect to the target." % bad)
+            print("%s Unable to connect to the target" % bad)
             quit()
     return url
 
 
 def remove_tags(html):
-    """Remove all the HTML from a web page source."""
+    """Remove all the HTML from a webpage source."""
     return re.sub(r"(?s)<.*?>", "", html)
 
 
-def lineComparer(response1, response2):
+def compare_lines(response1, response2):
     """Compare two webpage and find the non-matching lines."""
     response1 = response1.split("\n")
     response2 = response2.split("\n")
