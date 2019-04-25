@@ -1,9 +1,12 @@
+"""Helper to create a prompt."""
 import os
 import tempfile
 
+
 def prompt(default=None):
-    editor = 'nano'
-    with tempfile.NamedTemporaryFile(mode='r+') as tmpfile:
+    """Prompt to works with."""
+    editor = "nano"
+    with tempfile.NamedTemporaryFile(mode="r+") as tmpfile:
         if default:
             tmpfile.write(default)
             tmpfile.flush()
