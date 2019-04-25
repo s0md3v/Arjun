@@ -21,7 +21,8 @@
 
 ![demo](https://i.ibb.co/0V6ymPy/Screenshot-2019-04-12-18-17-49.png)
 
-### Introduction
+# Introduction
+
 Web applications use parameters (or queries) to accept user input, take the following example into consideration
 
 `http://api.example.com/v1/userinfo?id=751634589`
@@ -32,7 +33,8 @@ This is what Arjun does, it finds valid HTTP parameters with a huge default dict
 The best part? It takes less than 30 seconds to go through this huge list while making just 30-35 requests to the target.\
 Want to know how Arjun does that? [Here's how](https://github.com/s0md3v/Arjun/wiki/How-Arjun-works%3F).
 
-### Features
+# Features
+
 - Multi-threading
 - Thorough detection
 - `GET/POST/JSON` methods supported
@@ -41,9 +43,23 @@ Want to know how Arjun does that? [Here's how](https://github.com/s0md3v/Arjun/w
 - Huge list of 25,980 parameter names
 - Makes just 30-35 requests to the target
 
-> **Note:** Arjun doesn't work with python < 3.4
+# Installation
 
-#### How to use Arjun?
+`arjun` is available to be installed from the [Python Package Index (PyPI)](https://pypi.org/). 
+
+```bash
+$ pip3 install arjun --user
+```
+
+Or if you prefer the latest version. 
+
+```bash
+$ git clone https://github.com/s0md3v/Arjun.git
+$ cd Arjun
+$ python3 setup.py install
+```
+
+# Usage
 
 A detailed usage guide is available on [Usage](https://github.com/s0md3v/Arjun/wiki/Usage) section of the Wiki.\
 An index of options is given below:
@@ -56,5 +72,19 @@ An index of options is given below:
 - [Saving output to a file](https://github.com/s0md3v/Arjun/wiki/Usage#saving-output-to-a-file)
 - [Adding custom HTTP headers](https://github.com/s0md3v/Arjun/wiki/Usage#adding-http-headers)
 
-##### Credits
+# Credits
+
 The parameter names are taken from [@SecLists](https://github.com/danielmiessler/SecLists).
+
+# Development
+
+To develop a new feature itŝ recommended to install `arjun` in a Python virtual
+environment.
+
+```bash
+$ git clone https://github.com/s0md3v/Arjun.git
+$ cd Arjun
+$ python3 -m venv .
+$ source bin/activate
+$ python3 setup.py develop
+```
