@@ -6,7 +6,7 @@ from core.colors import red, green, white, end, info, bad, good, run
 
 print('''%s    _         
    /_| _ '    
-  (  |/ /(//) %sv1.4%s
+  (  |/ /(//) %sv1.5%s
       _/      %s
 ''' % (green, white, green, end))
 
@@ -214,41 +214,41 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
         log('%s Heuristic found %i potential parameters.' % (info, len(foundParams)))
         paramList = foundParams
 
-    finalResult = []
-    jsonResult = []
+    currentResult = []
+    returnResult = []
 
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
     futures = (threadpool.submit(bruter, param, originalResponse, originalCode, factors, include, reflections, delay, headers, url, GET) for param in foundParams)
     for i, result in enumerate(concurrent.futures.as_completed(futures)):
         if result.result():
-            finalResult.append(result.result())
+            currentResult.append(result.result())
         log('%s Progress: %i/%i' % (info, i + 1, len(paramList)), mode='run')
 
     log('%s Scan Completed    ' % info)
 
-    for each in finalResult:
+    for each in currentResult:
         for param, reason in each.items():
             log('%s Valid parameter found: %s%s%s' % (good, green, param, end))
             log('%s Reason: %s' % (info, reason))
-            jsonResult.append({"param": param, "reason": reason})
-    if not jsonResult:
+            returnResult.append({"param": param, "reason": reason})
+    if not returnResult:
         log('%s Unable to verify existence of parameters detected by heuristic' % bad)
-    return jsonResult
+    return returnResult
 
-finalResult = []
+finalResult = {}
 if url:
-    finalResult = initialize(url, include, headers, GET, delay, paramList, threadCount)
+    finalResult[url] = []
+    finalResult[url] = initialize(url, include, headers, GET, delay, paramList, threadCount)
 elif urls:
-    finalResult = {}
     for url in urls:
+        finalResult[url] = []
         print('%s Scanning: %s' % (run, url))
-        jsonResult = initialize(url, include, headers, GET, delay, list(paramList), threadCount)
-        if jsonResult:
-            print('%s Parameters found: %s' % (good, ', '.join([each['param'] for each in jsonResult])))
-        finalResult[url] = jsonResult
+        finalResult[url] = initialize(url, include, headers, GET, delay, list(paramList), threadCount)
+        if finalResult[url]:
+            print('%s Parameters found: %s' % (good, ', '.join([each['param'] for each in finalResult[url]])))
 
 # Finally, export to json
 if args.output_file and finalResult:
     log('%s Saving output to JSON file in %s' % (info, args.output_file))
     with open(str(args.output_file), 'w+') as json_output:
-        json.dump({'results':finalResult}, json_output, sort_keys=True, indent=4,)
+        json.dump(finalResult, json_output, sort_keys=True, indent=4)
