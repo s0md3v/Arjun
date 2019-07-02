@@ -119,6 +119,9 @@ def heuristic(response, paramList):
 def quickBruter(params, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET):
     joined = joiner(params, include)
     newResponse = requester(url, joined, headers, GET, delay)
+    if newResponse.status_code == 429:
+        print ('%s Target has rate limiting in place, please use -t 2 -d 5.' % bad)
+        raise ConnectionError
     if newResponse.status_code != originalCode:
         return params
     elif factors['sameHTML'] and len(newResponse.text) != (len(originalResponse)):
@@ -238,14 +241,20 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
 finalResult = {}
 if url:
     finalResult[url] = []
-    finalResult[url] = initialize(url, include, headers, GET, delay, paramList, threadCount)
+    try:
+        finalResult[url] = initialize(url, include, headers, GET, delay, paramList, threadCount)
+    except ConnectionError:
+        quit()
 elif urls:
     for url in urls:
         finalResult[url] = []
         print('%s Scanning: %s' % (run, url))
-        finalResult[url] = initialize(url, include, headers, GET, delay, list(paramList), threadCount)
-        if finalResult[url]:
-            print('%s Parameters found: %s' % (good, ', '.join([each['param'] for each in finalResult[url]])))
+        try:
+            finalResult[url] = initialize(url, include, headers, GET, delay, list(paramList), threadCount)
+            if finalResult[url]:
+                print('%s Parameters found: %s' % (good, ', '.join([each['param'] for each in finalResult[url]])))
+        except ConnectionError:
+            pass
 
 # Finally, export to json
 if args.output_file and finalResult:
