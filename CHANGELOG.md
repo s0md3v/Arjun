@@ -1,3 +1,10 @@
+#### 1.5
+- Ignore dynamic content
+- Detect int-only parameters
+- Include URL in json output
+- Track each reflection separately
+- Improved error handling
+
 #### 1.4
 - Added `JSON` support
 - Fixed a major bug in detection logic
