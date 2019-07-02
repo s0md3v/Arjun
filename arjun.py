@@ -208,10 +208,13 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
     toBeChecked = slicer(paramList, 50)
     foundParams = []
     while True:
-        toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount)
-        toBeChecked = unityExtracter(toBeChecked, foundParams)
-        if not toBeChecked:
-            break
+        try:
+            toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount)
+            toBeChecked = unityExtracter(toBeChecked, foundParams)
+            if not toBeChecked:
+                break
+        except:
+            raise ConnectionError
 
     if foundParams:
         log('%s Heuristic found %i potential parameters.' % (info, len(foundParams)))
@@ -244,6 +247,7 @@ if url:
     try:
         finalResult[url] = initialize(url, include, headers, GET, delay, paramList, threadCount)
     except ConnectionError:
+        print ('%s Target is refusing connections. Consider using -d 5 -t 1.' % bad)
         quit()
 elif urls:
     for url in urls:
@@ -254,6 +258,7 @@ elif urls:
             if finalResult[url]:
                 print('%s Parameters found: %s' % (good, ', '.join([each['param'] for each in finalResult[url]])))
         except ConnectionError:
+            print ('%s Target is refusing connections. Consider using -d 5 -t 1.' % bad)
             pass
 
 # Finally, export to json
