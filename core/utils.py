@@ -1,6 +1,5 @@
 import re
 import json
-import string
 import random
 import requests
 
@@ -92,7 +91,7 @@ def lineComparer(response1, response2):
 
 def randomString(n):
     "generates a random string of length n"
-    return ''.join(random.choice(string.ascii_lowercase) for i in range(n))
+    return ''.join(str(random.choice(range(10))) for i in range(n))
 
 def e(string):
     "utf encodes a string"
