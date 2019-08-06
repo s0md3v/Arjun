@@ -166,79 +166,83 @@ def narrower(oldParamList, url, include, headers, GET, delay, originalResponse, 
     return newParamList
 
 def initialize(url, include, headers, GET, delay, paramList, threadCount):
-    url = stabilize(url)
-
-    log('%s Analysing the content of the webpage' % run)
-    firstResponse = requester(url, include, headers, GET, delay)
-
-    log('%s Analysing behaviour for a non-existent parameter' % run)
-
-    originalFuzz = randomString(6)
-    data = {originalFuzz : originalFuzz[::-1]}
-    data.update(include)
-    response = requester(url, data, headers, GET, delay)
-    reflections = response.text.count(originalFuzz[::-1])
-    log('%s Reflections: %s%i%s' % (info, green, reflections, end))
-
-    originalResponse = response.text
-    originalCode = response.status_code
-    log('%s Response Code: %s%i%s' % (info, green, originalCode, end))
-
-    newLength = len(response.text)
-    plainText = removeTags(originalResponse)
-    plainTextLength = len(plainText)
-    log('%s Content Length: %s%i%s' % (info, green, newLength, end))
-    log('%s Plain-text Length: %s%i%s' % (info, green, plainTextLength, end))
-
-    factors = {'sameHTML': False, 'samePlainText': False}
-    if len(firstResponse.text) == len(originalResponse):
-        factors['sameHTML'] = True
-    elif len(removeTags(firstResponse.text)) == len(plainText):
-        factors['samePlainText'] = True
-
-    log('%s Parsing webpage for potential parameters' % run)
-    heuristic(firstResponse.text, paramList)
-
-    fuzz = randomString(8)
-    data = {fuzz : fuzz[::-1]}
-    data.update(include)
-
-    log('%s Performing heuristic level checks' % run)
-
-    toBeChecked = slicer(paramList, 50)
-    foundParams = []
-    while True:
-        try:
-            toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount)
-            toBeChecked = unityExtracter(toBeChecked, foundParams)
-            if not toBeChecked:
-                break
-        except:
-            raise ConnectionError
-
-    if foundParams:
-        log('%s Heuristic found %i potential parameters.' % (info, len(foundParams)))
-        paramList = foundParams
-
-    currentResult = []
     returnResult = []
+    
+    url = stabilize(url)
+    
+    if url != False:
+        log('%s Analysing the content of the webpage' % run)
+        firstResponse = requester(url, include, headers, GET, delay)
 
-    threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(bruter, param, originalResponse, originalCode, factors, include, reflections, delay, headers, url, GET) for param in foundParams)
-    for i, result in enumerate(concurrent.futures.as_completed(futures)):
-        if result.result():
-            currentResult.append(result.result())
-        log('%s Progress: %i/%i' % (info, i + 1, len(paramList)), mode='run')
+        log('%s Analysing behaviour for a non-existent parameter' % run)
 
-    log('%s Scan Completed    ' % info)
+        originalFuzz = randomString(6)
+        data = {originalFuzz : originalFuzz[::-1]}
+        data.update(include)
+        response = requester(url, data, headers, GET, delay)
+        reflections = response.text.count(originalFuzz[::-1])
+        log('%s Reflections: %s%i%s' % (info, green, reflections, end))
 
-    for each in currentResult:
-        for param, reason in each.items():
-            log('%s Valid parameter found: %s%s%s' % (good, green, param, end))
-            log('%s Reason: %s' % (info, reason))
-            returnResult.append({"param": param, "reason": reason})
+        originalResponse = response.text
+        originalCode = response.status_code
+        log('%s Response Code: %s%i%s' % (info, green, originalCode, end))
+
+        newLength = len(response.text)
+        plainText = removeTags(originalResponse)
+        plainTextLength = len(plainText)
+        log('%s Content Length: %s%i%s' % (info, green, newLength, end))
+        log('%s Plain-text Length: %s%i%s' % (info, green, plainTextLength, end))
+
+        factors = {'sameHTML': False, 'samePlainText': False}
+        if len(firstResponse.text) == len(originalResponse):
+                factors['sameHTML'] = True
+        elif len(removeTags(firstResponse.text)) == len(plainText):
+                factors['samePlainText'] = True
+
+        log('%s Parsing webpage for potential parameters' % run)
+        heuristic(firstResponse.text, paramList)
+
+        fuzz = randomString(8)
+        data = {fuzz : fuzz[::-1]}
+        data.update(include)
+
+        log('%s Performing heuristic level checks' % run)
+
+        toBeChecked = slicer(paramList, 50)
+        foundParams = []
+        while True:
+                try:
+                        toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount)
+                        toBeChecked = unityExtracter(toBeChecked, foundParams)
+                        if not toBeChecked:
+                                break
+                except:
+                        raise ConnectionError
+
+        if foundParams:
+                log('%s Heuristic found %i potential parameters.' % (info, len(foundParams)))
+                paramList = foundParams
+
+        currentResult = []
+
+        threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
+        futures = (threadpool.submit(bruter, param, originalResponse, originalCode, factors, include, reflections, delay, headers, url, GET) for param in foundParams)
+        for i, result in enumerate(concurrent.futures.as_completed(futures)):
+                if result.result():
+                        currentResult.append(result.result())
+                log('%s Progress: %i/%i' % (info, i + 1, len(paramList)), mode='run')
+
+        log('%s Scan Completed        ' % info)
+
+        for each in currentResult:
+                for param, reason in each.items():
+                        log('%s Valid parameter found: %s%s%s' % (good, green, param, end))
+                        log('%s Reason: %s' % (info, reason))
+                        returnResult.append({"param": param, "reason": reason})
+
     if not returnResult:
         log('%s Unable to verify existence of parameters detected by heuristic' % bad)
+        
     return returnResult
 
 finalResult = {}

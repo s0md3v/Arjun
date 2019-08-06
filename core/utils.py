@@ -70,7 +70,7 @@ def stabilize(url):
             pass
         else:
             print ('%s Unable to connect to the target.' % bad)
-            quit()
+            return False
     return url
 
 def removeTags(html):
