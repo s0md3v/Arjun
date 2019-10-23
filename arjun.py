@@ -6,9 +6,9 @@ from core.colors import green, white, end, info, bad, good, run
 
 print('''%s    _         
    /_| _ '    
-  (  |/ /(//) %sv1.6%s
+  (  |/ /(//) v1.6
       _/      %s
-''' % (green, white, green, end))
+''' % (green, end))
 
 try:
     import concurrent.futures
