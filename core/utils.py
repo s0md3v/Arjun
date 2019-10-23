@@ -3,18 +3,7 @@ import json
 import random
 import requests
 
-import core.config
 from core.colors import bad
-
-def log(data, mode='', show=False):
-    suffix = '\n'
-    if mode == 'run':
-        suffix = '\r'
-    if not core.config.globalVariables['url_file']:
-        print (data, end=suffix)
-    else:
-        if show:
-            print (data, end=suffix)
 
 def extractHeaders(headers):
     headers = headers.replace('\\n', '\n')
@@ -70,7 +59,7 @@ def stabilize(url):
             pass
         else:
             print ('%s Unable to connect to the target.' % bad)
-            quit()
+            return False
     return url
 
 def removeTags(html):
@@ -100,12 +89,6 @@ def e(string):
 def d(string):
     "utf decodes a string"
     return string.decode('utf-8')
-
-def flattenParams(params):
-    flatted = []
-    for name, value in params.items():
-        flatted.append(name + '=' + value)
-    return '?' + '&'.join(flatted)
 
 def getParams(data):
     params = {}

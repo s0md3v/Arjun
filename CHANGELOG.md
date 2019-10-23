@@ -1,3 +1,10 @@
+#### 1.6
+- `--stable` switch for handling rate limits
+- Include empty JS variables for testing
+- Various optimizations and bug fixes
+- Handle keyboard interruption
+- Removed redundant code
+
 #### 1.5
 - Ignore dynamic content
 - Detect int-only parameters
