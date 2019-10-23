@@ -1,4 +1,4 @@
-### 1.6
+#### 1.6
 - `--stable` switch for handling rate limits
 - Include empty JS variables for testing
 - Various optimizations and bug fixes
