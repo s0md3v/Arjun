@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser() # defines the parser
 # Arguments that can be supplied
 parser.add_argument('-u', help='target url', dest='url')
 parser.add_argument('-o', help='path for the output file', dest='output_file')
-parser.add_argument('-d', help='request delay', dest='delay', type=int, default=0)
+parser.add_argument('-d', help='request delay', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='number of threads', dest='threads', type=int, default=2)
 parser.add_argument('-f', help='wordlist path', dest='wordlist', default='./db/params.txt')
 parser.add_argument('--urls', help='file containing target urls', dest='url_file')
