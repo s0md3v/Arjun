@@ -18,7 +18,7 @@
   </a>
 </p>
 
-![demo](https://i.ibb.co/0V6ymPy/Screenshot-2019-04-12-18-17-49.png)
+![demo](https://i.ibb.co/Ln32F4B/arjun-demo.png)
 
 ### Introduction
 Web applications use parameters (or queries) to accept user input, take the following example into consideration
