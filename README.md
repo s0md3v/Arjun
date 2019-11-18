@@ -31,6 +31,14 @@ This is what Arjun does, it finds valid HTTP parameters with a huge default dict
 The best part? It takes less than 30 seconds to go through this huge list while making just 50-60 requests to the target.\
 Want to know how Arjun does that? [Here's how](https://github.com/s0md3v/Arjun/wiki/How-Arjun-works%3F).
 
+### Donations
+You can encourage me to contribute more to the open source with donations.
+
+- Paypal - [https://paypal.me/s0md3v](https://paypal.me/s0md3v)
+- Credit/Debit Card - [https://www.buymeacoffee.com/s0md3v](https://www.buymeacoffee.com/s0md3v)
+
+Do you want to sponsor Arjun and get mentioned here? Email me `s0md3v[at]gmail[dot]com`
+
 ### Features
 - Multi-threading
 - Thorough detection
