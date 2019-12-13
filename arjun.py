@@ -81,7 +81,7 @@ include = getParams(include)
 
 paramList = []
 try:
-    with open(wordlist, 'r') as file:
+    with open(wordlist, 'r', encoding="utf8") as file:
         for line in file:
             paramList.append(line.strip('\n'))
 except FileNotFoundError:
@@ -92,7 +92,7 @@ urls = []
 
 if url_file:
     try:
-        with open(url_file, 'r') as file:
+        with open(url_file, 'r', encoding="utf8") as file:
             for line in file:
                 urls.append(line.strip('\n'))
     except FileNotFoundError:
@@ -255,5 +255,5 @@ except KeyboardInterrupt:
 # Finally, export to json
 if args.output_file and finalResult:
     print('%s Saving output to JSON file in %s' % (info, args.output_file))
-    with open(str(args.output_file), 'w+') as json_output:
+    with open(str(args.output_file), 'w+', encoding="utf8") as json_output:
         json.dump(finalResult, json_output, sort_keys=True, indent=4)
