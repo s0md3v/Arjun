@@ -4,8 +4,8 @@ from __future__ import print_function
 
 from core.colors import green, white, end, info, bad, good, run
 
-print('''%s    _         
-   /_| _ '    
+print('''%s    _
+   /_| _ '
   (  |/ /(//) v1.6
       _/      %s
 ''' % (green, end))
@@ -109,17 +109,18 @@ def heuristic(response, paramList):
     for form in forms:
         method = re.search(r'(?i)method=[\'"](.*?)[\'"]', form)
         inputs = re.findall(r'(?i)(?s)<input.*?>', response)
-        for inp in inputs:
-            inpName = re.search(r'(?i)name=[\'"](.*?)[\'"]', inp)
-            if inpName:
-                inpName = d(e(inpName.group(1)))
-                if inpName not in done:
-                    if inpName in paramList:
-                        paramList.remove(inpName)
-                    done.append(inpName)
-                    paramList.insert(0, inpName)
-                    print('%s Heuristic found a potential %s parameter: %s%s%s' % (good, method.group(1), green, inpName, end))
-                    print('%s Prioritizing it' % info)
+        if inputs != None and method != None:
+            for inp in inputs:
+                inpName = re.search(r'(?i)name=[\'"](.*?)[\'"]', inp)
+                if inpName:
+                    inpName = d(e(inpName.group(1)))
+                    if inpName not in done:
+                        if inpName in paramList:
+                            paramList.remove(inpName)
+                        done.append(inpName)
+                        paramList.insert(0, inpName)
+                        print('%s Heuristic found a potential %s parameter: %s%s%s' % (good, method.group(1), green, inpName, end))
+                        print('%s Prioritizing it' % info)
     emptyJSvars = re.finditer(r'var\s+([^=]+)\s*=\s*[\'"`][\'"`]', response)
     for each in emptyJSvars:
         inpName = each.group(1)
