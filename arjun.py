@@ -40,6 +40,7 @@ parser.add_argument('--headers', help='add headers', dest='headers', nargs='?', 
 parser.add_argument('--json', help='treat post data as json', dest='jsonData', action='store_true')
 parser.add_argument('--stable', help='prefer stability over speed', dest='stable', action='store_true')
 parser.add_argument('--include', help='include this data in every request', dest='include', default={})
+parser.add_argument('--proxy', help='use proxy', dest='proxy')
 args = parser.parse_args() # arguments to be parsed
 
 url = args.url
@@ -51,6 +52,7 @@ jsonData = args.jsonData
 url_file = args.url_file
 wordlist = args.wordlist
 threadCount = args.threads
+proxy = args.proxy
 
 if stable or delay:
     threadCount = 1
@@ -131,7 +133,7 @@ def heuristic(response, paramList):
 
 def quickBruter(params, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET):
     joined = joiner(params, include)
-    newResponse = requester(url, joined, headers, GET, delay)
+    newResponse = requester(url, joined, headers, GET, delay, proxy)
     if newResponse.status_code == 429:
         if core.config.globalVariables['stable']:
             print('%s Hit rate limit, stabilizing the connection..')
@@ -169,14 +171,14 @@ def initialize(url, include, headers, GET, delay, paramList, threadCount):
         return {}
     else:
         print('%s Analysing the content of the webpage' % run)
-        firstResponse = requester(url, include, headers, GET, delay)
+        firstResponse = requester(url, include, headers, GET, delay, proxy)
 
         print('%s Analysing behaviour for a non-existent parameter' % run)
 
         originalFuzz = randomString(6)
         data = {originalFuzz : originalFuzz[::-1]}
         data.update(include)
-        response = requester(url, data, headers, GET, delay)
+        response = requester(url, data, headers, GET, delay, proxy)
         reflections = response.text.count(originalFuzz[::-1])
         print('%s Reflections: %s%i%s' % (info, green, reflections, end))
 
