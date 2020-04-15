@@ -128,6 +128,15 @@ def heuristic(response, paramList):
         paramList.insert(0, inpName)
         print('%s Heuristic found a potential parameter: %s%s%s' % (good, green, inpName, end))
         print('%s Prioritizing it' % info)
+      
+    arrayJSnames = re.finditer(r'([^"]+)":"', response)
+    for each in arrayJSnames:
+        inpName = each.group(1)
+        if inpName not in done:
+            done.append(inpName)
+            paramList.insert(0, inpName)
+            print('%s Heuristic found a potential parameter: %s%s%s' % (good, green, inpName, end))
+            print('%s Prioritizing it' % info)
 
 def quickBruter(params, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET):
     joined = joiner(params, include)
