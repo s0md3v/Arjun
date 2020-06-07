@@ -13,7 +13,7 @@ print('''%s    _
 try:
     import concurrent.futures
 except ImportError:
-    print('%s Please use Python > 3.2 to run Arjun.' % bad)
+    print('%s Please use Python >= 3.4 to run Arjun.' % bad)
     quit()
 
 import re
