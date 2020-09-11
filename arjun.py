@@ -37,6 +37,7 @@ parser.add_argument('--urls', help='file containing target urls', dest='url_file
 parser.add_argument('--get', help='use get method', dest='GET', action='store_true')
 parser.add_argument('--post', help='use post method', dest='POST', action='store_true')
 parser.add_argument('--headers', help='add headers', dest='headers', nargs='?', const=True)
+parser.add_argument('--cookies', help='add cookies', dest='cookies', default={}, type=str)
 parser.add_argument('--json', help='treat post data as json', dest='jsonData', action='store_true')
 parser.add_argument('--stable', help='prefer stability over speed', dest='stable', action='store_true')
 parser.add_argument('--include', help='include this data in every request', dest='include', default={})
@@ -46,11 +47,20 @@ url = args.url
 delay = args.delay
 stable = args.stable
 include = args.include
+cookies = args.cookies
 headers = args.headers
 jsonData = args.jsonData
 url_file = args.url_file
 wordlist = args.wordlist
 threadCount = args.threads
+
+if cookies:
+    copy = cookies
+    cookies = {}
+    for cc in copy.split(";"):
+        cc = cc.strip(" ").split("=");
+        if len(cc) == 2:
+            cookies[cc[0]] = cc[1]
 
 if stable or delay:
     threadCount = 1
@@ -130,8 +140,9 @@ def heuristic(response, paramList):
         print('%s Prioritizing it' % info)
 
 def quickBruter(params, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET):
+    global cookies
     joined = joiner(params, include)
-    newResponse = requester(url, joined, headers, GET, delay)
+    newResponse = requester(url, joined, headers, GET, delay, cookies)
     if newResponse.status_code == 429:
         if core.config.globalVariables['stable']:
             print('%s Hit rate limit, stabilizing the connection..')
@@ -164,19 +175,20 @@ def narrower(oldParamList, url, include, headers, GET, delay, originalResponse, 
     return newParamList
 
 def initialize(url, include, headers, GET, delay, paramList, threadCount):
+    global cookies
     url = stabilize(url)
     if not url:
         return {}
     else:
         print('%s Analysing the content of the webpage' % run)
-        firstResponse = requester(url, include, headers, GET, delay)
+        firstResponse = requester(url, include, headers, GET, delay, cookies)
 
         print('%s Analysing behaviour for a non-existent parameter' % run)
 
         originalFuzz = randomString(6)
         data = {originalFuzz : originalFuzz[::-1]}
         data.update(include)
-        response = requester(url, data, headers, GET, delay)
+        response = requester(url, data, headers, GET, delay, cookies)
         reflections = response.text.count(originalFuzz[::-1])
         print('%s Reflections: %s%i%s' % (info, green, reflections, end))
 
