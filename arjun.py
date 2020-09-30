@@ -121,7 +121,7 @@ def heuristic(response, paramList):
                         paramList.insert(0, inpName)
                         print('%s Heuristic found a potential %s parameter: %s%s%s' % (good, method.group(1), green, inpName, end))
                         print('%s Prioritizing it' % info)
-    emptyJSvars = re.finditer(r'var\s+([^=]+)\s*=\s*[\'"`][\'"`]', response)
+    emptyJSvars = re.finditer(r'(var|let|const)\s+([^=]+)\s*=\s*[\'"`][\'"`]', response)
     for each in emptyJSvars:
         inpName = each.group(1)
         done.append(inpName)
