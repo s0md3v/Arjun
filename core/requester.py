@@ -10,7 +10,7 @@ import core.config
 warnings.filterwarnings('ignore') # Disable SSL related warnings
 
 def requester(url, data, headers, GET, delay):
-    if core.config.globalVariables['jsonData']:
+    if core.config.globalVariables['jsonData'] and GET:
         data = json.dumps(data)
     if core.config.globalVariables['stable']:
         delay = random.choice(range(6, 12))
