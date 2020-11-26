@@ -134,7 +134,7 @@ def quickBruter(params, originalResponse, originalCode, reflections, factors, in
     newResponse = requester(url, joined, headers, GET, delay)
     if newResponse.status_code == 429:
         if core.config.globalVariables['stable']:
-            print('%s Hit rate limit, stabilizing the connection..')
+            print('%s Hit rate limit, stabilizing the connection..', % info)
             time.sleep(30)
             return params
         else:
