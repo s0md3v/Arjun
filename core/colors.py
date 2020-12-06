@@ -5,7 +5,7 @@ machine = sys.platform # Detecting the os of current system
 if machine.lower().startswith(('os', 'win', 'darwin', 'ios')):
     colors = False # Colors shouldn't be displayed in mac & windows
 if not colors:
-    end = red = white = green = yellow = run = bad = good = info = que = ''
+    white = green = red = yellow = end = back = info = que = bad = good = run = res = ''
 else:
     white = '\033[97m'
     green = '\033[92m'
