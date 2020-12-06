@@ -117,6 +117,9 @@ def narrower(request, factors, param_groups):
 
 def initialize(request, wordlist):
     url = request['url']
+    if not url.startswith('http'):
+        print('%s %s is not a valid URL' % (bad, url))
+        return 'skipped'
     print('%s Probing the target for stability' % run)
     stable = stable_request(url, request['headers'])
     if not stable:
@@ -178,11 +181,11 @@ try:
             print('%s Scanning: %s' % (run, url))
             these_params = initialize(each, list(wordlist))
             if these_params == 'skipped':
-                print('%s Skipped %s due to errors' % (bad, request['url']))
+                print('%s Skipped %s due to errors' % (bad, url))
             elif these_params:
                 final_result[url] = {}
                 final_result[url]['params'] = these_params
-                final_result[url]['method'] = request['method']
+                final_result[url]['method'] = each['method']
                 print('%s Parameters found: %s' % (good, ', '.join(final_result[url])))
 except KeyboardInterrupt:
     exit()
