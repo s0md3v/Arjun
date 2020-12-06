@@ -12,7 +12,7 @@ from core.colors import bad
 warnings.filterwarnings('ignore') # Disable SSL related warnings
 
 def requester(request, payload={}):
-    if request['include']:
+    if 'include' in request and request['include']:
         payload.update(request['include'])
     if mem.var['stable']:
         mem.var['delay'] = random.choice(range(6, 12))
