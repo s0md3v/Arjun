@@ -128,11 +128,11 @@ def getParams(include):
     """
     params = {}
     if include:
-        try:
-            params = json.loads(str(data).replace('\'', '"'))
+        if include.startswith('{'):
+            params = json.loads(str(include).replace('\'', '"'))
             return params
-        except json.decoder.JSONDecodeError:
-            cleaned = url.split('?')[-1]
+        else:
+            cleaned = include.split('?')[-1]
             parts = cleaned.split('&')
             for part in parts:
                 each = part.split('=')
