@@ -124,7 +124,7 @@ def initialize(request, wordlist):
     else:
         fuzz = randomString(6)
         response_1 = requester(request, {fuzz : fuzz[::-1]})
-        print('%s Analysing HTTP response for analmolies' % run)
+        print('%s Analysing HTTP response for anamolies' % run)
         fuzz = randomString(6)
         response_2 = requester(request, {fuzz : fuzz[::-1]})
         if type(response_1) == str or type(response_2) == str:
