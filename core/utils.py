@@ -150,7 +150,7 @@ def reader(path, mode='string'):
     """
     with open(path, 'r', encoding='utf-8') as file:
         if mode == 'lines':
-            return [line.rstrip('\n') for line in file]
+            return list(filter(None, [line.rstrip('\n') for line in file]))
         else:
             return ''.join([line for line in file])
 
