@@ -1,13 +1,11 @@
 from core.utils import lcs, removeTags
 
-def diff_map(response_1, response_2):
+def diff_map(body_1, body_2):
     sig = []
-    lines_1, lines_2 = source_1.split('\n'), source_2.split('\n')
+    lines_1, lines_2 = body_1.split('\n'), body_2.split('\n')
     for line_1, line_2 in zip(lines_1, lines_2):
         if line_1 == line_2:
-            sig.append(True)
-        else:
-            sig.append(False)
+            sig.append(line_1)
     return sig
 
 
@@ -42,8 +40,8 @@ def define(response_1, response_2, param, value, wordlist):
         elif body_1 and body_2:
             if body_1.count('\\n') == 1:
                 factors['common_string'] = lcs(body_1, body_2)
-            else:
-                factors['lines_diff'] = diff_map(response_1, response_2)
+            elif body_1.count('\\n') == body_2.count('\\n'):
+                factors['lines_diff'] = diff_map(body_1, body_2)
     return factors
 
 
