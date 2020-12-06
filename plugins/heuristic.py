@@ -2,12 +2,15 @@ import re
 
 from core.utils import extract_js
 
+def is_not_junk(string):
+    return re.match(r'^[A-Za-z0-9_]+$', string)
+
 def heuristic(response, paramList):
     found = []
     inputs = re.findall(r'(?i)<input.+?name=["\']?([^"\'\s>]+)', response)
     if inputs:
         for inpName in inputs:
-            if inpName not in found:
+            if inpName not in found and is_not_junk(inpName):
                 if inpName in paramList:
                     paramList.remove(inpName)
                 found.append(inpName)
@@ -16,7 +19,7 @@ def heuristic(response, paramList):
         emptyJSvars = re.findall(r'([^\s!=<>]+)\s*=\s*[\'"`][\'"`]', response)
         if emptyJSvars:
             for var in emptyJSvars:
-                if var not in found:
+                if var not in found and is_not_junk(var):
                     found.append(var)
                     if var in paramList:
                         paramList.remove(var)
@@ -24,7 +27,7 @@ def heuristic(response, paramList):
         arrayJSnames = re.findall(r'([^\'"]+)[\'"]:\s?[\'"]', response)
         if arrayJSnames:
             for var in arrayJSnames:
-                if var not in found:
+                if var not in found and is_not_junk(var):
                     found.append(var)
                     if var in paramList:
                         paramList.remove(var)
