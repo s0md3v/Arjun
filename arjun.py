@@ -1,260 +1,194 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 from __future__ import print_function
 
-from core.colors import green, white, end, info, bad, good, run
+from core.colors import green, end, info, bad, good, run, res
 
 print('''%s    _
    /_| _ '
-  (  |/ /(//) v1.6
+  (  |/ /(//) v2.0-beta
       _/      %s
 ''' % (green, end))
 
 try:
-    import concurrent.futures
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 except ImportError:
-    print('%s Please use Python >= 3.4 to run Arjun.' % bad)
+    print('%s Please use Python > 3.2 to run Arjun.' % bad)
     quit()
 
-import re
+import sys
 import json
 import time
 import argparse
 
-import core.config
+from itertools import repeat
+from urllib.parse import urlparse
+
+import core.config as mem
+from core.bruter import bruter
 from core.prompt import prompt
+from core.importer import importer
 from core.requester import requester
-from core.utils import e, d, stabilize, randomString, slicer, joiner, unityExtracter, getParams, removeTags, extractHeaders
+from core.anamoly import compare, define
+from core.utils import fetch_params, stable_request, randomString, slicer, confirm, getParams, populate, removeTags, extractHeaders, parse_request, reader
+
+from plugins.heuristic import heuristic
 
 parser = argparse.ArgumentParser() # defines the parser
 # Arguments that can be supplied
 parser.add_argument('-u', help='target url', dest='url')
 parser.add_argument('-o', help='path for the output file', dest='output_file')
-parser.add_argument('-d', help='request delay', dest='delay', type=float, default=0)
+parser.add_argument('-d', help='delay between requests', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='number of threads', dest='threads', type=int, default=2)
-parser.add_argument('-f', help='wordlist path', dest='wordlist', default='./db/params.txt')
-parser.add_argument('--urls', help='file containing target urls', dest='url_file')
-parser.add_argument('--get', help='use get method', dest='GET', action='store_true')
-parser.add_argument('--post', help='use post method', dest='POST', action='store_true')
+parser.add_argument('-w', help='wordlist path', dest='wordlist', default=sys.path[0]+'/db/params.txt')
+parser.add_argument('-m', help='request method: GET/POST/JSON', dest='method', default='GET')
+parser.add_argument('-i', help='import targets from file', dest='import_file', nargs='?', const=True)
+parser.add_argument('-T', help='http request timeout', dest='timeout', type=float, default=15)
+parser.add_argument('-c', help='chunk size/number of parameters to be sent at once', type=int, dest='chunks', default=500)
 parser.add_argument('--headers', help='add headers', dest='headers', nargs='?', const=True)
-parser.add_argument('--json', help='treat post data as json', dest='jsonData', action='store_true')
+parser.add_argument('--passive', help='collect parameter names from passive sources', dest='passive')
 parser.add_argument('--stable', help='prefer stability over speed', dest='stable', action='store_true')
 parser.add_argument('--include', help='include this data in every request', dest='include', default={})
 args = parser.parse_args() # arguments to be parsed
 
-url = args.url
-delay = args.delay
-stable = args.stable
-include = args.include
-headers = args.headers
-jsonData = args.jsonData
-url_file = args.url_file
-wordlist = args.wordlist
-threadCount = args.threads
+mem.var = vars(args)
 
-if stable or delay:
-    threadCount = 1
+mem.var['method'] = mem.var['method'].upper()
 
-core.config.globalVariables = vars(args)
+if mem.var['stable'] or mem.var['delay']:
+    mem.var['threads'] = 1
 
-if type(headers) == bool:
-    headers = extractHeaders(prompt())
-elif type(headers) == str:
-    headers = extractHeaders(headers)
-else:
-    headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0',
-                'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language' : 'en-US,en;q=0.5',
-                'Accept-Encoding' : 'gzip, deflate',
-                'Connection' : 'keep-alive',
-                'Upgrade-Insecure-Requests' : '1'}
-
-if jsonData:
-    headers['Content-type'] = 'application/json'
-
-if not (args.GET or args.POST or args.jsonData) or args.GET:
-    GET = True
-else:
-    GET = False
-
-include = getParams(include)
-
-paramList = []
 try:
-    with open(wordlist, 'r', encoding="utf8") as file:
-        for line in file:
-            paramList.append(line.strip('\n'))
+    wordlist = set(reader(args.wordlist, mode='lines'))
+    if mem.var['passive']:
+        host = mem.var['passive']
+        if host == '-':
+            host = urlparse(args.url).netloc
+        print('%s Collecting parameter names from passive sources for %s, it may take a while' % (run, host))
+        passive_params = fetch_params(host)
+        wordlist.update(passive_params)
+        print('%s Collected %s parameters, added to the wordlist' % (info, len(passive_params)))
+    wordlist = list(wordlist)
 except FileNotFoundError:
-    print('%s The specified file for parameters doesn\'t exist' % bad)
-    quit()
+    exit('%s The specified file for parameters doesn\'t exist' % bad)
 
-urls = []
+if not (args.url, args.import_file):
+    exit('%s No targets specified' % bad)
 
-if url_file:
-    try:
-        with open(url_file, 'r', encoding="utf8") as file:
-            for line in file:
-                urls.append(line.strip('\n'))
-    except FileNotFoundError:
-        print('%s The specified file for URLs doesn\'t exist' % bad)
-        quit()
+def prepare_requests(args):
+    headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate',
+    'Connection': 'close',
+    'Upgrade-Insecure-Requests': '1'
+    }
+    if type(headers) == bool:
+        headers = extractHeaders(prompt())
+    elif type(headers) == str:
+        headers = extractHeaders(headers)
+    if mem.var['method'] == 'JSON':
+        mem.headers['Content-type'] = 'application/json'
+    if args.url:
+        params = getParams(args.include)
+        return {
+            'url': args.url,
+            'method': mem.var['method'],
+            'headers': headers,
+            'include': params
+        }
+    elif args.import_file:
+        return importer(args.import_file, mem.var['method'], headers, args.include)
+    return []
 
-if not url and not url_file:
-    print('%s No URL specified.' % bad)
-    quit()
 
-def heuristic(response, paramList):
-    done = []
-    forms = re.findall(r'(?i)(?s)<form.*?</form.*?>', response)
-    for form in forms:
-        method = re.search(r'(?i)method=[\'"](.*?)[\'"]', form)
-        inputs = re.findall(r'(?i)(?s)<input.*?>', response)
-        if inputs != None and method != None:
-            for inp in inputs:
-                inpName = re.search(r'(?i)name=[\'"](.*?)[\'"]', inp)
-                if inpName:
-                    inpName = d(e(inpName.group(1)))
-                    if inpName not in done:
-                        if inpName in paramList:
-                            paramList.remove(inpName)
-                        done.append(inpName)
-                        paramList.insert(0, inpName)
-                        print('%s Heuristic found a potential %s parameter: %s%s%s' % (good, method.group(1), green, inpName, end))
-                        print('%s Prioritizing it' % info)
-    emptyJSvars = re.finditer(r'var\s+([^=]+)\s*=\s*[\'"`][\'"`]', response)
-    for each in emptyJSvars:
-        inpName = each.group(1)
-        done.append(inpName)
-        paramList.insert(0, inpName)
-        print('%s Heuristic found a potential parameter: %s%s%s' % (good, green, inpName, end))
-        print('%s Prioritizing it' % info)
-
-def quickBruter(params, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET):
-    joined = joiner(params, include)
-    newResponse = requester(url, joined, headers, GET, delay)
-    if newResponse.status_code == 429:
-        if core.config.globalVariables['stable']:
-            print('%s Hit rate limit, stabilizing the connection..')
-            time.sleep(30)
-            return params
-        else:
-            print('%s Target has rate limiting in place, please use --stable switch' % bad)
-            raise ConnectionError
-    if newResponse.status_code != originalCode:
-        return params
-    elif factors['sameHTML'] and len(newResponse.text) != (len(originalResponse)):
-        return params
-    elif factors['samePlainText'] and len(removeTags(originalResponse)) != len(removeTags(newResponse.text)):
-        return params
-    elif True:
-        for param, value in joined.items():
-            if param not in include and newResponse.text.count(value) != reflections:
-                return params
-    else:
-        return False
-
-def narrower(oldParamList, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount):
-    newParamList = []
-    threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(quickBruter, part, originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET) for part in oldParamList)
-    for i, result in enumerate(concurrent.futures.as_completed(futures)):
+def narrower(request, factors, param_groups):
+    anamolous_params = []
+    threadpool = ThreadPoolExecutor(max_workers=mem.var['threads'])
+    futures = (threadpool.submit(bruter, request, factors, params) for params in param_groups)
+    for i, result in enumerate(as_completed(futures)):
         if result.result():
-            newParamList.extend(slicer(result.result()))
-        print('%s Processing: %i/%-6i' % (info, i + 1, len(oldParamList)), end='\r')
-    return newParamList
+            anamolous_params.extend(slicer(result.result()))
+        if not mem.var['kill']:
+            print('%s Processing chunks: %i/%-6i' % (info, i + 1, len(param_groups)), end='\r')
+    return anamolous_params
 
-def initialize(url, include, headers, GET, delay, paramList, threadCount):
-    url = stabilize(url)
-    if not url:
-        return {}
+def initialize(request, wordlist):
+    url = request['url']
+    print('%s Probing the target for stability' % run)
+    stable = stable_request(url, request['headers'])
+    if not stable:
+        return 'skipped'
     else:
-        print('%s Analysing the content of the webpage' % run)
-        firstResponse = requester(url, include, headers, GET, delay)
-
-        print('%s Analysing behaviour for a non-existent parameter' % run)
-
-        originalFuzz = randomString(6)
-        data = {originalFuzz : originalFuzz[::-1]}
-        data.update(include)
-        response = requester(url, data, headers, GET, delay)
-        reflections = response.text.count(originalFuzz[::-1])
-        print('%s Reflections: %s%i%s' % (info, green, reflections, end))
-
-        originalResponse = response.text
-        originalCode = response.status_code
-        print('%s Response Code: %s%i%s' % (info, green, originalCode, end))
-
-        newLength = len(response.text)
-        plainText = removeTags(originalResponse)
-        plainTextLength = len(plainText)
-        print('%s Content Length: %s%i%s' % (info, green, newLength, end))
-        print('%s Plain-text Length: %s%i%s' % (info, green, plainTextLength, end))
-
-        factors = {'sameHTML': False, 'samePlainText': False}
-        if len(firstResponse.text) == len(originalResponse):
-            factors['sameHTML'] = True
-        elif len(removeTags(firstResponse.text)) == len(plainText):
-            factors['samePlainText'] = True
-
-        print('%s Parsing webpage for potential parameters' % run)
-        heuristic(firstResponse.text, paramList)
-
-        fuzz = randomString(8)
-        data = {fuzz : fuzz[::-1]}
-        data.update(include)
-
-        print('%s Performing heuristic level checks' % run)
-
-        toBeChecked = slicer(paramList, 50)
-        foundParamsTemp = []
+        fuzz = randomString(6)
+        response_1 = requester(request, {fuzz : fuzz[::-1]})
+        print('%s Analysing HTTP response for anamolies' % run)
+        fuzz = randomString(6)
+        response_2 = requester(request, {fuzz : fuzz[::-1]})
+        if type(response_1) == str or type(response_2) == str:
+            return 'skipped'
+        factors = define(response_1, response_2, fuzz, fuzz[::-1], wordlist)
+        print('%s Analysing HTTP response for potential parameter names' % run)
+        found = heuristic(response_1.text, wordlist)
+        if found:
+            num = len(found)
+            s = 's' if num > 1 else ''
+            print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
+        print('%s Logicforcing the URL endpoint' % run)
+        populated = populate(wordlist)
+        param_groups = slicer(populated, int(len(wordlist)/args.chunks))
+        last_params = []
         while True:
-            toBeChecked = narrower(toBeChecked, url, include, headers, GET, delay, originalResponse, originalCode, reflections, factors, threadCount)
-            toBeChecked = unityExtracter(toBeChecked, foundParamsTemp)
-            if not toBeChecked:
+            param_groups = narrower(request, factors, param_groups)
+            if mem.var['kill']:
+                return 'skipped'
+            param_groups = confirm(param_groups, last_params)
+            if not param_groups:
                 break
+        confirmed_params = []
+        for param in last_params:
+            reason = bruter(request, factors, param, mode='verify')
+            if reason:
+                name = list(param.keys())[0]
+                confirmed_params.append(name)
+                print('%s name: %s, factor: %s' % (res, name, reason))
+        return confirmed_params
 
-        foundParams = []
+request = prepare_requests(args)
 
-        for param in foundParamsTemp:
-            exists = quickBruter([param], originalResponse, originalCode, reflections, factors, include, delay, headers, url, GET)
-            if exists:
-                foundParams.append(param)
-
-        print('%s Scan Completed    ' % info)
-
-        for each in foundParams:
-            print('%s Valid parameter found: %s%s%s' % (good, green, each, end))
-        if not foundParams:
-            print('%s Unable to verify existence of parameters detected by heuristic.' % bad)
-        return foundParams
-
-finalResult = {}
+final_result = {}
 
 try:
-    if url:
-        finalResult[url] = []
-        try:
-            finalResult[url] = initialize(url, include, headers, GET, delay, paramList, threadCount)
-        except ConnectionError:
-            print('%s Target has rate limiting in place, please use --stable switch.' % bad)
-            quit()
-    elif urls:
-        for url in urls:
-            finalResult[url] = []
+    if type(request) == dict:
+        mem.var['kill'] = False
+        url = request['url']
+        these_params = initialize(request, wordlist)
+        if these_params == 'skipped':
+            print('%s Skipped %s due to errors' % (bad, request['url']))
+        elif these_params:
+            final_result['url'] = url
+            final_result['params'] = these_params
+            final_result['method'] = request['method']
+    elif type(request) == list:
+        for each in request:
+            url = each['url']
+            mem.var['kill'] = False
             print('%s Scanning: %s' % (run, url))
-            try:
-                finalResult[url] = initialize(url, include, headers, GET, delay, list(paramList), threadCount)
-                if finalResult[url]:
-                    print('%s Parameters found: %s' % (good, ', '.join(finalResult[url])))
-            except ConnectionError:
-                print('%s Target has rate limiting in place, please use --stable switch.' % bad)
-                pass
+            these_params = initialize(each, list(wordlist))
+            if these_params == 'skipped':
+                print('%s Skipped %s due to errors' % (bad, request['url']))
+            elif these_params:
+                final_result[url] = {}
+                final_result[url]['params'] = these_params
+                final_result[url]['method'] = request['method']
+                print('%s Parameters found: %s' % (good, ', '.join(final_result[url])))
 except KeyboardInterrupt:
-    print('%s Exiting..                ' % bad)
-    quit()
+    exit()
 
 # Finally, export to json
-if args.output_file and finalResult:
-    print('%s Saving output to JSON file in %s' % (info, args.output_file))
-    with open(str(args.output_file), 'w+', encoding="utf8") as json_output:
-        json.dump(finalResult, json_output, sort_keys=True, indent=4)
+if args.output_file and final_result:
+    with open(str(mem.var['output_file']), 'w+', encoding='utf8') as json_output:
+        json.dump(final_result, json_output, sort_keys=True, indent=4)
+    print('%s Output saved to JSON file in %s' % (info, mem.var['output_file']))

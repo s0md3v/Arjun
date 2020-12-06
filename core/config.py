@@ -1,1 +1,1 @@
-globalVariables = {}
+var = {}

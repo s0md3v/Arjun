@@ -18,9 +18,12 @@
   </a>
 </p>
 
-![demo](https://i.ibb.co/Ln32F4B/arjun-demo.png)
+![demo](https://i.ibb.co/q5F8qPY/Screenshot-2020-12-06-21-54-52.png)
 
-### Introduction
+### What's Arjun?
+
+Arjun can find query parameters for URL enpoints. If you don't get what that means, it's okay, read along.
+
 Web applications use parameters (or queries) to accept user input, take the following example into consideration
 
 `http://api.example.com/v1/userinfo?id=751634589`
@@ -28,41 +31,31 @@ Web applications use parameters (or queries) to accept user input, take the foll
 This URL seems to load user information for a specific user id, but what if there exists a parameter named `admin` which when set to `True` makes the endpoint provide more information about the user?\
 This is what Arjun does, it finds valid HTTP parameters with a huge default dictionary of 25,980 parameter names.
 
-The best part? It takes less than 30 seconds to go through this huge list while making just 50-60 requests to the target.\
-Want to know how Arjun does that? [Here's how](https://github.com/s0md3v/Arjun/wiki/How-Arjun-works%3F).
+The best part? It takes less than 20 seconds to go through this huge list while making just 50-60 requests to the target. [Here's how](https://github.com/s0md3v/Arjun/wiki/How-Arjun-works%3F).
 
-### Donations
-You can encourage me to contribute more to the open source with donations.
+### Why Arjun?
 
-- Paypal - [https://paypal.me/s0md3v](https://paypal.me/s0md3v)
-- Credit/Debit Card - [https://www.buymeacoffee.com/s0md3v](https://www.buymeacoffee.com/s0md3v)
+- Anamoly detection with 9 factors
+- Suppots `GET/POST/POST-JSON`
+- Automatically handles rate limits and timeouts
+- Can import targets from BurpSuite, text file or a raw request file
+- Can passively extract parameters from JS or 3 external sources
+- Makes ~50 requests in 20 seconds for checking 25,980 parameter names
 
-Do you want to sponsor Arjun and get mentioned here? Email me `s0md3v[at]gmail[dot]com`
-
-### Features
-- Multi-threading
-- Thorough detection
-- Automatic rate limit handling
-- A typical scan takes 30 seconds
-- `GET/POST/JSON` methods supported
-- Huge list of 25,980 parameter names
+### How to use Arjun?
 
 > **Note:** Arjun doesn't work with python < 3.4
 
-#### How to use Arjun?
+A detailed usage guide is available on [Usage](https://github.com/s0md3v/Arjun/wiki/Usage) section of the Wiki.
 
-A detailed usage guide is available on [Usage](https://github.com/s0md3v/Arjun/wiki/Usage) section of the Wiki.\
+Direct links to some basic options are given below:
 
-An index of options is given below:
+- [Scan a single URL](https://github.com/s0md3v/Arjun/wiki/Usage#scan-a-single-url)
+- [Import multiple targets](https://github.com/s0md3v/Arjun/wiki/Usage#import-multiple-targets)
+- [Save output to a file](https://github.com/s0md3v/Arjun/wiki/Usage#save-output-to-a-file)
+- [Use custom HTTP headers](https://github.com/s0md3v/Arjun/wiki/Usage#use-custom-http-headers)
 
-- [Scanning a single URL](https://github.com/s0md3v/Arjun/wiki/Usage#scanning-a-single-url)
-- [Scanning multiple URLs](https://github.com/s0md3v/Arjun/wiki/Usage#scanning-multiple-urls)
-- [Choosing number of threads](https://github.com/s0md3v/Arjun/wiki/Usage#multi-threading)
-- [Handling rate limits](https://github.com/s0md3v/Arjun/wiki/Usage#handling-rate-limits)
-- [Delay between requests](https://github.com/s0md3v/Arjun/wiki/Usage#delay-between-requests)
-- [Including presistent data](https://github.com/s0md3v/Arjun/wiki/Usage#including-persistent-data)
-- [Saving output to a file](https://github.com/s0md3v/Arjun/wiki/Usage#saving-output-to-a-file)
-- [Adding custom HTTP headers](https://github.com/s0md3v/Arjun/wiki/Usage#adding-http-headers)
+Optionally, you can use the `--help` argument to explore Arjun on your own.
 
 ##### Credits
-The parameter names are taken from [@SecLists](https://github.com/danielmiessler/SecLists).
+The parameter names wordlist is taken from [@SecLists](https://github.com/danielmiessler/SecLists).

@@ -2,24 +2,34 @@ import re
 import json
 import time
 import random
-import warnings
 import requests
+import warnings
 
-import core.config
+import core.config as mem
+
+from core.colors import bad
 
 warnings.filterwarnings('ignore') # Disable SSL related warnings
 
-def requester(url, data, headers, GET, delay):
-    if core.config.globalVariables['jsonData'] and GET:
-        data = json.dumps(data)
-    if core.config.globalVariables['stable']:
-        delay = random.choice(range(6, 12))
-    time.sleep(delay)
-    headers['Host'] = re.search(r'https?://([^/]+)', url).group(1)
-    if GET:
-        response = requests.get(url, params=data, headers=headers, verify=False)
-    elif core.config.globalVariables['jsonData']:
-        response = requests.post(url, json=data, headers=headers, verify=False)
-    else:
-        response = requests.post(url, data=data, headers=headers, verify=False)
-    return response
+def requester(request, payload={}):
+    if request['include']:
+        payload.update(request['include'])
+    if mem.var['stable']:
+        mem.var['delay'] = random.choice(range(6, 12))
+    time.sleep(mem.var['delay'])
+    url = request['url']
+    if 'Host' not in request['headers']:
+        this_host = re.search(r'https?://([^/]+)', url).group(1)
+        request['headers']['Host'] = this_host.split('@')[1] if '@' in this_host else this_host
+    if mem.var['kill']:
+        return 'killed'
+    try:
+        if request['method'] == 'GET':
+            response = requests.get(url, params=payload, headers=request['headers'], verify=False, timeout=mem.var['timeout'])
+        elif request['method'] == 'JSON':
+            response = requests.post(url, json=json.dumps(payload), headers=request['headers'], verify=False, timeout=mem.var['timeout'])
+        else:
+            response = requests.post(url, data=payload, headers=request['headers'], verify=False, timeout=mem.var['timeout'])
+        return response
+    except Exception as e:
+        return str(e)
