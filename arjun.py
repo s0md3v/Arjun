@@ -7,7 +7,7 @@ from core.colors import green, end, info, bad, good, run, res
 
 print('''%s    _
    /_| _ '
-  (  |/ /(//) v2.0
+  (  |/ /(//) v2.0-beta
       _/      %s
 ''' % (green, end))
 
@@ -54,6 +54,8 @@ args = parser.parse_args() # arguments to be parsed
 
 mem.var = vars(args)
 
+mem.var['method'] = mem.var['method'].upper()
+
 if mem.var['stable'] or mem.var['delay']:
     mem.var['threads'] = 1
 
@@ -87,18 +89,18 @@ def prepare_requests(args):
         headers = extractHeaders(prompt())
     elif type(headers) == str:
         headers = extractHeaders(headers)
-    if args.method.upper() == 'JSON':
+    if mem.var['method'] == 'JSON':
         mem.headers['Content-type'] = 'application/json'
     if args.url:
         params = getParams(args.include)
         return {
             'url': args.url,
-            'method': args.method.upper(),
+            'method': mem.var['method'],
             'headers': headers,
             'include': params
         }
     elif args.import_file:
-        return importer(args.import_file, args.method, headers, args.include)
+        return importer(args.import_file, mem.var['method'], headers, args.include)
     return []
 
 
