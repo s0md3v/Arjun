@@ -1,3 +1,14 @@
+#### 2.0-beta
+- Added an anamoly detection algorithm with 9 factors
+- Added a HTTP response analyzer for handling errors and retrying requests
+- Significantly improved heuristic scanner
+- `--passive` option for collecting parameters from otx, commoncrawl and archive.org
+- `-c` option to define number of parameters to be sent at once
+- import via `-i` options now supports: BurpSuite log, raw request file, text file with urls
+- `-T` option to specify HTTP connection timeout
+- combined `-m` option for specifiying HTTP request method
+- Various bug fixes and better output
+
 #### 1.6
 - `--stable` switch for handling rate limits
 - Include empty JS variables for testing
