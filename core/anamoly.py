@@ -57,7 +57,7 @@ def compare(response, factors, params):
     if factors['same_plaintext'] and removeTags(response.text) != factors['same_plaintext']:
         return ('text length', params)
     if factors['lines_diff']:
-        for line in factors['lines']:
+        for line in factors['lines_diff']:
             if line not in response.text:
                 return ('lines', params)
     if factors['common_string'] and factors['common_string'] not in response.text:
