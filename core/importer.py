@@ -21,7 +21,7 @@ def burp_import(path):
 	for match in matches:
 		request = parse_request(match.group(4))
 		headers = request['headers']
-		if match.group(7) in ('text/html', 'application/json'):
+		if match.group(7) in ('HTML', 'JSON'):
 			requests.append({
 				'url': match.group(1),
 				'method': match.group(2),
