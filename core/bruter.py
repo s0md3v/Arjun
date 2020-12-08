@@ -1,6 +1,3 @@
-import time
-from requests import exceptions
-
 import core.config as mem
 
 from core.anamoly import compare
