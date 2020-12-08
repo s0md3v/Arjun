@@ -31,10 +31,6 @@ def define(response_1, response_2, param, value, wordlist):
             factors['same_redirect'] = response_1.url
         if response_1.text == response_2.text:
             factors['same_body'] = response_1.text
-        elif param not in response_2.text:
-            factors['param_missing'] = [word for word in wordlist if word in response_2.text]
-        elif value not in response_2.text:
-            factors['value_missing'] = True
         elif removeTags(body_1) == removeTags(body_2):
             factors['same_plaintext'] = removeTags(body_1)
         elif body_1 and body_2:
@@ -42,6 +38,10 @@ def define(response_1, response_2, param, value, wordlist):
                 factors['common_string'] = lcs(body_1, body_2)
             elif body_1.count('\\n') == body_2.count('\\n'):
                 factors['lines_diff'] = diff_map(body_1, body_2)
+        if param not in response_2.text:
+            factors['param_missing'] = [word for word in wordlist if word in response_2.text]
+        if value not in response_2.text:
+            factors['value_missing'] = True
     return factors
 
 
@@ -69,5 +69,5 @@ def compare(response, factors, params):
     if factors['value_missing']:
         for value in params.values():
             if value in response.text:
-                return ('value value reflection', params)
+                return ('param value reflection', params)
     return ('', [])
