@@ -73,6 +73,9 @@ try:
 except FileNotFoundError:
     exit('%s The specified file for parameters doesn\'t exist' % bad)
 
+if len(wordlist) < mem.var['chunks']:
+   mem.var['chunks'] = int(len(wordlist)/2)
+
 if not (args.url, args.import_file):
     exit('%s No targets specified' % bad)
 
@@ -141,7 +144,7 @@ def initialize(request, wordlist):
             print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
         print('%s Logicforcing the URL endpoint' % run)
         populated = populate(wordlist)
-        param_groups = slicer(populated, int(len(wordlist)/args.chunks))
+        param_groups = slicer(populated, int(len(wordlist)/mem.var['chunks']))
         last_params = []
         while True:
             param_groups = narrower(request, factors, param_groups)
