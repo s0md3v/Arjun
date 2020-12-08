@@ -7,8 +7,6 @@ import warnings
 
 import core.config as mem
 
-from core.colors import bad
-
 warnings.filterwarnings('ignore') # Disable SSL related warnings
 
 def requester(request, payload={}):
