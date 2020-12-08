@@ -19,10 +19,8 @@ except ImportError:
 
 import sys
 import json
-import time
 import argparse
 
-from itertools import repeat
 from urllib.parse import urlparse
 
 import core.config as mem
@@ -30,8 +28,8 @@ from core.bruter import bruter
 from core.prompt import prompt
 from core.importer import importer
 from core.requester import requester
-from core.anamoly import compare, define
-from core.utils import fetch_params, stable_request, randomString, slicer, confirm, getParams, populate, removeTags, extractHeaders, parse_request, reader
+from core.anamoly import define
+from core.utils import fetch_params, stable_request, randomString, slicer, confirm, getParams, populate, extractHeaders, reader
 
 from plugins.heuristic import heuristic
 
