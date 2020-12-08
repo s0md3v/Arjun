@@ -93,7 +93,7 @@ def prepare_requests(args):
     elif type(headers) == str:
         headers = extractHeaders(headers)
     if mem.var['method'] == 'JSON':
-        mem.headers['Content-type'] = 'application/json'
+        headers['Content-type'] = 'application/json'
     if args.url:
         params = getParams(args.include)
         return {
