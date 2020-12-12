@@ -158,7 +158,7 @@ def initialize(request, wordlist):
                 name = list(param.keys())[0]
                 confirmed_params.append(name)
                 print('%s name: %s, factor: %s' % (res, name, reason))
-        return confirmed_params
+        return found, confirmed_params
 
 request = prepare_requests(args)
 
@@ -168,13 +168,14 @@ try:
     if type(request) == dict:
         mem.var['kill'] = False
         url = request['url']
-        these_params = initialize(request, wordlist)
+        found, these_params = initialize(request, wordlist)
         if these_params == 'skipped':
             print('%s Skipped %s due to errors' % (bad, request['url']))
         elif these_params:
             final_result['url'] = url
             final_result['params'] = these_params
             final_result['method'] = request['method']
+            final_result['heuristics'] = found
     elif type(request) == list:
         for each in request:
             url = each['url']
