@@ -181,13 +181,14 @@ try:
             url = each['url']
             mem.var['kill'] = False
             print('%s Scanning: %s' % (run, url))
-            these_params = initialize(each, list(wordlist))
+            found, these_params = initialize(each, list(wordlist))
             if these_params == 'skipped':
                 print('%s Skipped %s due to errors' % (bad, url))
             elif these_params:
                 final_result[url] = {}
                 final_result[url]['params'] = these_params
                 final_result[url]['method'] = each['method']
+                final_result[url]['heuristics'] = found
                 print('%s Parameters found: %s' % (good, ', '.join(final_result[url])))
 except KeyboardInterrupt:
     exit()
