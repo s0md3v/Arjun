@@ -35,8 +35,8 @@ The best part? It takes less than 20 seconds to go through this huge list while 
 
 ### Why Arjun?
 
-- Anamoly detection with 9 factors
-- Suppots `GET/POST/POST-JSON`
+- Anomaly detection with 9 factors
+- Supports `GET/POST/POST-JSON`
 - Automatically handles rate limits and timeouts
 - Can import targets from BurpSuite, text file or a raw request file
 - Can passively extract parameters from JS or 3 external sources
