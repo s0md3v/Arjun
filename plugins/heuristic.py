@@ -32,4 +32,4 @@ def heuristic(response, paramList):
                     if var in paramList:
                         paramList.remove(var)
                     paramList.insert(0, var)
-        return found
+    return found
