@@ -16,7 +16,7 @@ def heuristic(response, paramList):
                 found.append(inpName)
                 paramList.insert(0, inpName)
     for script in extract_js(response):
-        emptyJSvars = re.findall(r'([^\s!=<>]+)\s*=\s*[\'"`][\'"`]', response)
+        emptyJSvars = re.findall(r'([^\s!=<>]+)\s*=\s*[\'"`][\'"`]', script)
         if emptyJSvars:
             for var in emptyJSvars:
                 if var not in found and is_not_junk(var):
@@ -24,7 +24,7 @@ def heuristic(response, paramList):
                     if var in paramList:
                         paramList.remove(var)
                     paramList.insert(0, var)
-        arrayJSnames = re.findall(r'([^\'"]+)[\'"]:\s?[\'"]', response)
+        arrayJSnames = re.findall(r'([^\'"]+)[\'"]:\s?[\'"]', script)
         if arrayJSnames:
             for var in arrayJSnames:
                 if var not in found and is_not_junk(var):
