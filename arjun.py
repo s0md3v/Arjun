@@ -19,8 +19,10 @@ except ImportError:
 
 import sys
 import json
+import time
 import argparse
 
+from itertools import repeat
 from urllib.parse import urlparse
 
 import core.config as mem
@@ -28,8 +30,9 @@ from core.bruter import bruter
 from core.prompt import prompt
 from core.importer import importer
 from core.requester import requester
-from core.anamoly import define
-from core.utils import fetch_params, stable_request, randomString, slicer, confirm, getParams, populate, extractHeaders, reader
+from core.anamoly import compare, define
+from core.utils import fetch_params, stable_request, randomString, slicer, confirm, getParams, populate, removeTags, extractHeaders, parse_request, reader
+from jsonmerge import merge
 
 from plugins.heuristic import heuristic
 
@@ -71,9 +74,6 @@ try:
 except FileNotFoundError:
     exit('%s The specified file for parameters doesn\'t exist' % bad)
 
-if len(wordlist) < mem.var['chunks']:
-   mem.var['chunks'] = int(len(wordlist)/2)
-
 if not (args.url, args.import_file):
     exit('%s No targets specified' % bad)
 
@@ -91,7 +91,7 @@ def prepare_requests(args):
     elif type(headers) == str:
         headers = extractHeaders(headers)
     if mem.var['method'] == 'JSON':
-        headers['Content-type'] = 'application/json'
+        mem.headers['Content-type'] = 'application/json'
     if args.url:
         params = getParams(args.include)
         return {
@@ -142,7 +142,7 @@ def initialize(request, wordlist):
             print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
         print('%s Logicforcing the URL endpoint' % run)
         populated = populate(wordlist)
-        param_groups = slicer(populated, int(len(wordlist)/mem.var['chunks']))
+        param_groups = slicer(populated, int(len(wordlist)/args.chunks))
         last_params = []
         while True:
             param_groups = narrower(request, factors, param_groups)
@@ -177,6 +177,7 @@ try:
             final_result['method'] = request['method']
     elif type(request) == list:
         for each in request:
+            final_result={}
             url = each['url']
             mem.var['kill'] = False
             print('%s Scanning: %s' % (run, url))
@@ -188,11 +189,16 @@ try:
                 final_result[url]['params'] = these_params
                 final_result[url]['method'] = each['method']
                 print('%s Parameters found: %s' % (good, ', '.join(final_result[url])))
+            if args.output_file and final_result:
+                try:
+                    with open(str(mem.var['output_file']), 'r', encoding='utf8') as json_input:
+                        inp=json.loads(json_input.read())
+                except:                         #Happens first time when the file is empty
+                        inp={}                      
+                final=merge(inp,final_result) 
+                with open(str(mem.var['output_file']), 'w+', encoding='utf8') as json_output:
+                    json.dump(final, json_output, sort_keys=True, indent=4)
+                print('%s Output saved to JSON file in %s' % (info, mem.var['output_file']))
+
 except KeyboardInterrupt:
     exit()
-
-# Finally, export to json
-if args.output_file and final_result:
-    with open(str(mem.var['output_file']), 'w+', encoding='utf8') as json_output:
-        json.dump(final_result, json_output, sort_keys=True, indent=4)
-    print('%s Output saved to JSON file in %s' % (info, mem.var['output_file']))
