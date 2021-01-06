@@ -66,7 +66,7 @@ def compare(response, factors, params):
         return ('constant string', params)
     if type(factors['param_missing']) == list:
         for param in params.keys():
-            if param in response.text and param not in factors['param_missing']:
+            if param in response.text and param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % param, response.text):
                 return ('param name reflection', params)
     if factors['value_missing']:
         for value in params.values():
