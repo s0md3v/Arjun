@@ -1,3 +1,5 @@
+import re
+
 from core.utils import lcs, removeTags
 
 def diff_map(body_1, body_2):
@@ -68,6 +70,6 @@ def compare(response, factors, params):
                 return ('param name reflection', params)
     if factors['value_missing']:
         for value in params.values():
-            if value in response.text:
+            if value in response.text and re.search(r'[\'"\s]%s[\'"\s]' % value, response.text):
                 return ('param value reflection', params)
     return ('', [])
