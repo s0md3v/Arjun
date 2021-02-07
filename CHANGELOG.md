@@ -1,3 +1,13 @@
+#### 2.1.0
+- Added `XML` method
+- `-q` option for quiet mode
+- New wordlists backed by research
+- `-oT` option for txt export
+- `-oB` option for BurpSuite export
+- `-oJ` alias for JSON export
+- Added support for custom injection point in `XML` and `JSON`
+- pypi package
+
 #### 2.0-beta
 - Added an anamoly detection algorithm with 9 factors
 - Added a HTTP response analyzer for handling errors and retrying requests
