@@ -19,7 +19,9 @@ setup(
     license='GNU General Public License v3 (GPLv3)',
     url='https://github.com/s0md3v/Arjun',
     download_url='https://github.com/s0md3v/Arjun/archive/v%s.zip' % __import__('arjun').__version__,
+    zip_safe=False,
     packages=find_packages(),
+    package_data={'arjun': ['db/*']},
     install_requires=[
         'requests',
         'dicttoxml'
