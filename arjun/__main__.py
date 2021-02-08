@@ -16,6 +16,8 @@ from arjun.core.utils import fetch_params, stable_request, random_str, slicer, c
 
 from arjun.plugins.heuristic import heuristic
 
+arjun_dir = mem.__file__.replace('/core/config.py', '')
+
 parser = argparse.ArgumentParser() # defines the parser
 # Arguments that can be supplied
 parser.add_argument('-u', help='target url', dest='url')
@@ -24,7 +26,7 @@ parser.add_argument('-oT', help='path for text output file', dest='text_file')
 parser.add_argument('-oB', help='port for burp suite proxy', dest='burp_port')
 parser.add_argument('-d', help='delay between requests', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='number of threads', dest='threads', type=int, default=2)
-parser.add_argument('-w', help='wordlist path', dest='wordlist', default=os.getcwd()+'/db/default.txt')
+parser.add_argument('-w', help='wordlist path', dest='wordlist', default=arjun_dir+'/db/default.txt')
 parser.add_argument('-m', help='request method: GET/POST/XML/JSON', dest='method', default='GET')
 parser.add_argument('-i', help='import targets from file', dest='import_file', nargs='?', const=True)
 parser.add_argument('-T', help='http request timeout', dest='timeout', type=float, default=15)
@@ -59,7 +61,7 @@ if mem.var['stable'] or mem.var['delay']:
     mem.var['threads'] = 1
 
 try:
-    wordlist_file = os.getcwd() + '/db/small.txt' if args.wordlist == 'small' else args.wordlist
+    wordlist_file = arjun_dir + '/db/small.txt' if args.wordlist == 'small' else args.wordlist
     wordlist = set(reader(wordlist_file, mode='lines'))
     if mem.var['passive']:
         host = mem.var['passive']
@@ -141,7 +143,7 @@ def initialize(request, wordlist):
             if reason:
                 name = list(param.keys())[0]
                 confirmed_params.append(name)
-                print('%s name: %s, factor: 4%s' % (res, name, reason))
+                print('%s name: %s, factor: %s' % (res, name, reason))
         return confirmed_params
 
 
@@ -158,7 +160,7 @@ def main():
             these_params = initialize(request, wordlist)
             if these_params == 'skipped':
                 print('%s Skipped %s due to errors' % (bad, request['url']))
-            elif these_ppiparams:
+            elif these_params:
                 final_result[url] = {}
                 final_result[url]['params'] = these_params
                 final_result[url]['method'] = request['method']
