@@ -41,9 +41,20 @@ The best part? It takes less than 10 seconds to go through this huge list while 
 - Import targets from: BurpSuite, text file or a raw request file
 - Can passively extract parameters from JS or 3 external sources
 
-### How to use Arjun?
+### Installing Arjun
 
-> **Note:** Arjun doesn't work with python < 3.4
+You can install `arjun` with pip as following:
+
+```
+pip3 install arjun
+```
+
+or, by downloading this repository and running
+```
+python3 setup.py install
+```
+
+### How to use Arjun?
 
 A detailed usage guide is available on [Usage](https://github.com/s0md3v/Arjun/wiki/Usage) section of the Wiki.
 
