@@ -4,13 +4,19 @@ import random
 import requests
 
 import concurrent.futures
+from dicttoxml import dicttoxml
 from urllib.parse import urlparse
 
-from plugins.otx import otx
-from plugins.wayback import wayback
-from plugins.commoncrawl import commoncrawl
+from arjun.core.prompt import prompt
+from arjun.core.importer import importer
 
-from core.colors import info
+from arjun.plugins.otx import otx
+from arjun.plugins.wayback import wayback
+from arjun.plugins.commoncrawl import commoncrawl
+
+import arjun.core.config as mem
+from arjun.core.colors import info
+
 
 def lcs(s1, s2):
     """
@@ -31,7 +37,7 @@ def lcs(s1, s2):
     return s1[x_longest - longest: x_longest]
 
 
-def extractHeaders(headers):
+def extract_headers(headers):
     """
     parses headers provided through command line
     returns dict
@@ -93,44 +99,45 @@ def stable_request(url, headers):
         return None
 
 
-def removeTags(html):
+def remove_tags(html):
     """
     removes all the html from a webpage source
     """
     return re.sub(r'(?s)<.*?>', '', html)
 
 
-def lineComparer(response1, response2):
+def diff_map(body_1, body_2):
     """
-    compares two webpage and finds the non-matching lines
+    creates a list of lines that are common between two multi-line strings
+    returns list
     """
-    response1 = response1.split('\n')
-    response2 = response2.split('\n')
-    num = 0
-    dynamicLines = []
-    for line1, line2 in zip(response1, response2):
-        if line1 != line2:
-            dynamicLines.append(num)
-        num += 1
-    return dynamicLines
+    sig = []
+    lines_1, lines_2 = body_1.split('\n'), body_2.split('\n')
+    for line_1, line_2 in zip(lines_1, lines_2):
+        if line_1 == line_2:
+            sig.append(line_1)
+    return sig
 
 
-def randomString(n):
+def random_str(n):
     """
     generates a random string of length n
     """
     return ''.join(str(random.choice(range(10))) for i in range(n))
 
 
-def getParams(include):
+def get_params(include):
     """
     loads parameters from JSON/query string
     """
     params = {}
     if include:
         if include.startswith('{'):
-            params = json.loads(str(include).replace('\'', '"'))
-            return params
+            try:
+                params = json.loads(str(include).replace('\'', '"'))
+                return params
+            except json.decoder.JSONDecodeError:
+                return {}
         else:
             cleaned = include.split('?')[-1]
             parts = cleaned.split('&')
@@ -141,6 +148,18 @@ def getParams(include):
                 except IndexError:
                     params = {}
     return params
+
+
+def create_query_string(params):
+    """
+    creates a query string from a list of parameters
+    returns str
+    """
+    query_string = ''
+    for param in params:
+        pair = param + '=' + random_str(4)
+        query_string += pair
+    return '?' + query_string
 
 
 def reader(path, mode='string'):
@@ -225,3 +244,50 @@ def fetch_params(host):
         page += 1
     print('%s Progress: %i%%' % (info, 100), end='\r')
     return params
+
+
+def prepare_requests(args):
+    """
+    creates a list of request objects used by Arjun from targets given by user
+    returns list (of targs)
+    """
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'Connection': 'close',
+        'Upgrade-Insecure-Requests': '1'
+    }
+    if type(headers) == bool:
+        headers = extract_headers(prompt())
+    elif type(headers) == str:
+        headers = extract_headers(headers)
+    if mem.var['method'] == 'JSON':
+        headers['Content-type'] = 'application/json'
+    if args.url:
+        params = get_params(args.include)
+        return {
+            'url': args.url,
+            'method': mem.var['method'],
+            'headers': headers,
+            'include': params
+        }
+    elif args.import_file:
+        return importer(args.import_file, mem.var['method'], headers, args.include)
+    return []
+
+
+def nullify(*args, **kwargs):
+    """
+    a function that does nothing
+    """
+    pass
+
+
+def dict_to_xml(dict_obj):
+    """
+    converts dict to xml string
+    returns str
+    """
+    return dicttoxml(dict_obj, root=False, attr_type=False).decode('utf-8')

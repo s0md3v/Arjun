@@ -1,11 +1,15 @@
-import core.config as mem
+import arjun.core.config as mem
 
-from core.anamoly import compare
-from core.requester import requester
-from core.error_handler import error_handler
+from arjun.core.anomaly import compare
+from arjun.core.requester import requester
+from arjun.core.error_handler import error_handler
 
 
 def bruter(request, factors, params, mode='bruteforce'):
+    """
+    returns anomaly detection result for a chunk of parameters
+    returns list
+    """
     if mem.var['kill']:
         return []
     response = requester(request, params)

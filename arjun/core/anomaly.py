@@ -1,17 +1,13 @@
 import re
 
-from core.utils import lcs, removeTags
-
-def diff_map(body_1, body_2):
-    sig = []
-    lines_1, lines_2 = body_1.split('\n'), body_2.split('\n')
-    for line_1, line_2 in zip(lines_1, lines_2):
-        if line_1 == line_2:
-            sig.append(line_1)
-    return sig
+from arjun.core.utils import lcs, diff_map, remove_tags
 
 
 def define(response_1, response_2, param, value, wordlist):
+    """
+    defines a rule list for detecting anomalies by comparing two HTTP response
+    returns dict
+    """
     factors = {
         'same_code': False, # if http status code is same, contains that code
         'same_body': False, # if http body is same, contains that body
@@ -23,7 +19,7 @@ def define(response_1, response_2, param, value, wordlist):
         'param_missing': False, # if param name is missing from the body, contains words that are already there
         'value_missing': False # contains whether param value is missing from the body
     }
-    if (response_1 and response_2) != None:
+    if response_1 and response_2:
         body_1, body_2 = response_1.text, response_2.text
         if response_1.status_code == response_2.status_code:
             factors['same_code'] = response_1.status_code
@@ -33,8 +29,8 @@ def define(response_1, response_2, param, value, wordlist):
             factors['same_redirect'] = response_1.url
         if response_1.text == response_2.text:
             factors['same_body'] = response_1.text
-        elif removeTags(body_1) == removeTags(body_2):
-            factors['same_plaintext'] = removeTags(body_1)
+        elif remove_tags(body_1) == remove_tags(body_2):
+            factors['same_plaintext'] = remove_tags(body_1)
         elif body_1 and body_2:
             if body_1.count('\\n') == 1:
                 factors['common_string'] = lcs(body_1, body_2)
@@ -48,6 +44,10 @@ def define(response_1, response_2, param, value, wordlist):
 
 
 def compare(response, factors, params):
+    """
+    detects anomalies by comparing a HTTP response against a rule list
+    returns string, list (anamoly, list of parameters that caused it)
+    """
     if factors['same_code'] and response.status_code != factors['same_code']:
         return ('http code', params)
     if factors['same_headers'] and list(response.headers.keys()) != factors['same_headers']:
@@ -56,7 +56,7 @@ def compare(response, factors, params):
         return ('redirection', params)
     if factors['same_body'] and response.text != factors['same_body']:
         return ('body length', params)
-    if factors['same_plaintext'] and removeTags(response.text) != factors['same_plaintext']:
+    if factors['same_plaintext'] and remove_tags(response.text) != factors['same_plaintext']:
         return ('text length', params)
     if factors['lines_diff']:
         for line in factors['lines_diff']:
