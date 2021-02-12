@@ -43,13 +43,7 @@ The best part? It takes less than 10 seconds to go through this huge list while 
 
 ### Installing Arjun
 
-You can install `arjun` with pip as following:
-
-```
-pip3 install arjun
-```
-
-or, by downloading this repository and running
+You can install `arjun` by downloading this repository and running
 ```
 python3 setup.py install
 ```
