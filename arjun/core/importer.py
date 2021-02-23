@@ -1,7 +1,5 @@
 import re
 
-from arjun.core.utils import parse_headers
-
 def reader(path, mode='string'):
     """
     reads a file
@@ -24,6 +22,18 @@ def parse_request(string):
     result['path'] = match.group(2)
     result['headers'] = parse_headers(match.group(3))
     result['data'] = match.group(4)
+    return result
+
+def parse_headers(string):
+    """
+    parses headers
+    return dict
+    """
+    result = {}
+    for line in string.split('\n'):
+        if len(line) > 1:
+            splitted = line.split(':')
+            result[splitted[0]] = ':'.join(splitted[1:]).strip()
     return result
 
 burp_regex = re.compile(r'''(?m)^    <url><!\[CDATA\[(.+?)\]\]></url>
