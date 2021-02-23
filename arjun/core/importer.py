@@ -1,5 +1,7 @@
 import re
 
+from arjun.core.utils import parse_headers
+
 def reader(path, mode='string'):
     """
     reads a file
