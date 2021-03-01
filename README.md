@@ -13,6 +13,9 @@
   <a href="https://github.com/s0md3v/Arjun/releases">
     <img src="https://img.shields.io/github/release/s0md3v/Arjun.svg">
   </a>
+  <a href="https://pypi.python.org/pypi/arjun/">
+    <img src="https://img.shields.io/pypi/v/arjun.svg">
+  </a>
   <a href="https://github.com/s0md3v/Arjun/issues?q=is%3Aissue+is%3Aclosed">
       <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/Arjun.svg">
   </a>
