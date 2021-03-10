@@ -259,10 +259,10 @@ def prepare_requests(args):
         'Connection': 'close',
         'Upgrade-Insecure-Requests': '1'
     }
-    if type(headers) == bool:
+    if type(args.headers) == str:
+        args.headers = extract_headers(headers)
+    elif args.headers:
         headers = extract_headers(prompt())
-    elif type(headers) == str:
-        headers = extract_headers(headers)
     if mem.var['method'] == 'JSON':
         headers['Content-type'] = 'application/json'
     if args.url:
