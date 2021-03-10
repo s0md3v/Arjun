@@ -1,4 +1,5 @@
 import re
+import requests
 
 from arjun.core.utils import lcs, diff_map, remove_tags
 
@@ -19,7 +20,7 @@ def define(response_1, response_2, param, value, wordlist):
         'param_missing': False, # if param name is missing from the body, contains words that are already there
         'value_missing': False # contains whether param value is missing from the body
     }
-    if response_1 and response_2:
+    if type(response_1) == type(response_2) == requests.models.Response:
         body_1, body_2 = response_1.text, response_2.text
         if response_1.status_code == response_2.status_code:
             factors['same_code'] = response_1.status_code
