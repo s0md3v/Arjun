@@ -261,7 +261,7 @@ def prepare_requests(args):
         'Upgrade-Insecure-Requests': '1'
     }
     if type(args.headers) == str:
-        args.headers = extract_headers(headers)
+        headers = extract_headers(args.headers)
     elif args.headers:
         headers = extract_headers(prompt())
     if mem.var['method'] == 'JSON':
@@ -292,6 +292,7 @@ def dict_to_xml(dict_obj):
     returns str
     """
     return dicttoxml(dict_obj, root=False, attr_type=False).decode('utf-8')
+
 
 def compatible_path(path):
     """
