@@ -1,3 +1,11 @@
+#### 2.1.1
+- Fixed circular import
+- Fixed BurpSuite export
+- Fixed not working headers
+- Better response type checking
+- Fixed wordlist error on Windows
+- Fixed `Content-Type` header bug
+
 #### 2.1.0
 - Added `XML` method
 - `-q` option for quiet mode
