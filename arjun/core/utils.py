@@ -1,4 +1,5 @@
 import re
+import sys
 import json
 import random
 import requests
@@ -291,3 +292,12 @@ def dict_to_xml(dict_obj):
     returns str
     """
     return dicttoxml(dict_obj, root=False, attr_type=False).decode('utf-8')
+
+def compatible_path(path):
+    """
+    converts filepaths to be compatible with the host OS
+    returns str
+    """
+    if sys.platform.lower().startswith('win'):
+        return path.replace('/', '\\')
+    return path
