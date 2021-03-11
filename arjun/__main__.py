@@ -3,7 +3,6 @@
 
 from arjun.core.colors import green, end, info, bad, good, run, res
 
-import os
 import argparse
 
 from urllib.parse import urlparse
