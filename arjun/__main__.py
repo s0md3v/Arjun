@@ -12,11 +12,11 @@ from arjun.core.bruter import bruter
 from arjun.core.exporter import exporter
 from arjun.core.requester import requester
 from arjun.core.anomaly import define
-from arjun.core.utils import fetch_params, stable_request, random_str, slicer, confirm, populate, reader, nullify, prepare_requests
+from arjun.core.utils import fetch_params, stable_request, random_str, slicer, confirm, populate, reader, nullify, prepare_requests, compatible_path
 
 from arjun.plugins.heuristic import heuristic
 
-arjun_dir = mem.__file__.replace('/core/config.py', '')
+arjun_dir = compatible_path(mem.__file__.replace('/core/config.py', ''))
 
 parser = argparse.ArgumentParser() # defines the parser
 # Arguments that can be supplied
@@ -62,6 +62,7 @@ if mem.var['stable'] or mem.var['delay']:
 
 try:
     wordlist_file = arjun_dir + '/db/small.txt' if args.wordlist == 'small' else args.wordlist
+    wordlist_file = compatible_path(wordlist_file)
     wordlist = set(reader(wordlist_file, mode='lines'))
     if mem.var['passive']:
         host = mem.var['passive']
