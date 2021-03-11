@@ -18,14 +18,17 @@ def burp_export(result):
     """
     exports results to Burp Suite by sending request to Burp proxy
     """
+    proxies = {
+        'http': 'http://' + mem.var['burp_port'],
+        'https': 'http://' + mem.var['burp_port']
+    }
     for url, data in result.items():
-        url = re.sub(r'://[^/]+', '://' + mem.var['burp_port'], url, 1)
         if data['method'] == 'GET':
-            requests.get(url, params=populate(data['params']), headers=data['headers'])
+            requests.get(url, params=populate(data['params']), headers=data['headers'], proxies=proxies, verify=False)
         elif data['method'] == 'POST':
-            requests.post(url, data=populate(data['params']), headers=data['headers'])
+            requests.post(url, data=populate(data['params']), headers=data['headers'], proxies=proxies, verify=False)
         elif data['method'] == 'JSON':
-            requests.post(url, json=populate(data['params']), headers=data['headers'])
+            requests.post(url, json=populate(data['params']), headers=data['headers'], proxies=proxies, verify=False)
 
 def text_export(result):
     """
