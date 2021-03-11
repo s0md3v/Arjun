@@ -1,5 +1,4 @@
 import json
-import re
 import requests
 
 import arjun.core.config as mem
