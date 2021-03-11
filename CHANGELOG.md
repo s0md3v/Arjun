@@ -1,3 +1,7 @@
+#### 2.1.2
+- Minor code cleanup
+- Fixed `--headers` option
+
 #### 2.1.1
 - Fixed circular import
 - Fixed BurpSuite export
