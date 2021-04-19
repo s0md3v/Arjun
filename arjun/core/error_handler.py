@@ -1,7 +1,5 @@
 import time
-
 import arjun.core.config as mem
-
 from arjun.core.colors import bad
 
 def connection_refused():
