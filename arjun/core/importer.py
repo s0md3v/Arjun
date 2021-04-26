@@ -21,6 +21,7 @@ def parse_request(string):
     result['method'] = match.group(1)
     result['path'] = match.group(2)
     result['headers'] = parse_headers(match.group(3))
+    result['url'] = 'http://' + result['headers']['Host'] + result['path']
     result['data'] = match.group(4)
     return result
 
