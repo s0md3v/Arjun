@@ -1,7 +1,7 @@
 import re
 import requests
 
-from arjun.core.utils import lcs, diff_map, remove_tags
+from arjun.core.utils import diff_map, remove_tags
 
 
 def define(response_1, response_2, param, value, wordlist):
@@ -14,7 +14,6 @@ def define(response_1, response_2, param, value, wordlist):
         'same_body': False, # if http body is same, contains that body
         'same_plaintext': False, # if http body isn't same but is same after removing html, contains that non-html text
         'lines_diff': False, # if http-body or plaintext aren't and there are more than two lines, contain which lines are same
-        'common_string': False, # if there is just one line, contains the longest common string
         'same_headers': False, # if the headers are same, contains those headers
         'same_redirect': False, # if both requests redirect in similar manner, contains that redirection
         'param_missing': False, # if param name is missing from the body, contains words that are already there
@@ -32,10 +31,7 @@ def define(response_1, response_2, param, value, wordlist):
             factors['same_body'] = response_1.text
         elif remove_tags(body_1) == remove_tags(body_2):
             factors['same_plaintext'] = remove_tags(body_1)
-        elif body_1 and body_2:
-            if body_1.count('\\n') == 1:
-                factors['common_string'] = lcs(body_1, body_2)
-            elif body_1.count('\\n') == body_2.count('\\n'):
+        elif body_1 and body_2 and body_1.count('\\n') == body_2.count('\\n'):
                 factors['lines_diff'] = diff_map(body_1, body_2)
         if param not in response_2.text:
             factors['param_missing'] = [word for word in wordlist if word in response_2.text]
