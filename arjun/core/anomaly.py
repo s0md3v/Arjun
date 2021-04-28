@@ -59,8 +59,6 @@ def compare(response, factors, params):
         for line in factors['lines_diff']:
             if line not in response.text:
                 return ('lines', params)
-    if factors['common_string'] and factors['common_string'] not in response.text:
-        return ('constant string', params)
     if type(factors['param_missing']) == list:
         for param in params.keys():
             if param in response.text and param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % param, response.text):
