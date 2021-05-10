@@ -43,7 +43,7 @@ def error_handler(response, factors):
 		if 'Timeout' in response:
 			if mem.var['timeout'] > 20:
 				mem.var['kill'] = True
-				print('%s Connection timed out, unable to increase timeout further')
+				print('%s Connection timed out, unable to increase timeout further' % bad)
 				return 'kill'
 			else:
 				print('%s Connection timed out, increased timeout by 5 seconds' % bad)
