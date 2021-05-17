@@ -15,7 +15,7 @@ def bruter(request, factors, params, mode='bruteforce'):
     response = requester(request, params)
     conclusion = error_handler(response, factors)
     if conclusion == 'retry':
-        response = requester(request, params)
+        return requester(request, factors, params, mode=mode)
     elif conclusion == 'kill':
         return []
     comparison_result = compare(response, factors, params)
