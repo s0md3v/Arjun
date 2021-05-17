@@ -1,3 +1,9 @@
+#### 2.1.3
+- Fixed memory exhaustion bug
+- Fixed parsing of raw HTTP files
+- Added new detection factor: `number of lines`
+- Failed retries are now handled properly
+
 #### 2.1.2
 - Minor code cleanup
 - Fixed `--headers` option
