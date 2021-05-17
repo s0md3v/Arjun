@@ -11,4 +11,4 @@ before_script:
   # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
   - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 script:
-  - arjun -u https://public-firing-range.appspot.com/reflected/parameter/body -t 2 --headers '{"User-Agent": "Mozilla 5/5"}' -oJ result.json
+  - arjun -u https://public-firing-range.appspot.com/reflected/parameter/body -t 2 -oJ result.json

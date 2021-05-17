@@ -13,6 +13,7 @@ def define(response_1, response_2, param, value, wordlist):
         'same_code': False, # if http status code is same, contains that code
         'same_body': False, # if http body is same, contains that body
         'same_plaintext': False, # if http body isn't same but is same after removing html, contains that non-html text
+        'lines_num': False, # if number of lines in http body is same, contains that number
         'lines_diff': False, # if http-body or plaintext aren't and there are more than two lines, contain which lines are same
         'same_headers': False, # if the headers are same, contains those headers
         'same_redirect': False, # if both requests redirect in similar manner, contains that redirection
@@ -29,6 +30,8 @@ def define(response_1, response_2, param, value, wordlist):
             factors['same_redirect'] = response_1.url
         if response_1.text == response_2.text:
             factors['same_body'] = response_1.text
+        elif response_1.text.count('\n') == response_2.text.count('\n'):
+            factors['lines_num'] = response_1.text.count('\n')
         elif remove_tags(body_1) == remove_tags(body_2):
             factors['same_plaintext'] = remove_tags(body_1)
         elif body_1 and body_2 and body_1.count('\\n') == body_2.count('\\n'):
@@ -53,6 +56,8 @@ def compare(response, factors, params):
         return ('redirection', params)
     if factors['same_body'] and response.text != factors['same_body']:
         return ('body length', params)
+    if factors['lines_num'] and response.text.count('\n') != factors['lines_num']:
+        return ('number of lines', params)
     if factors['same_plaintext'] and remove_tags(response.text) != factors['same_plaintext']:
         return ('text length', params)
     if factors['lines_diff']:
