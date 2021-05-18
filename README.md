@@ -28,7 +28,7 @@
 
 ### What's Arjun?
 
-Arjun can find query parameters for URL enpoints. If you don't get what that means, it's okay, read along.
+Arjun can find query parameters for URL endpoints. If you don't get what that means, it's okay, read along.
 
 Web applications use parameters (or queries) to accept user input, take the following example into consideration
 
