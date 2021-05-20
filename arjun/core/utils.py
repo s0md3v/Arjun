@@ -139,8 +139,10 @@ def create_query_string(params):
     """
     query_string = ''
     for param in params:
-        pair = param + '=' + random_str(4)
+        pair = param + '=' + random_str(4) + '&'
         query_string += pair
+    if query_string.endswith('&'):
+	    query_string = query_string[:-1]
     return '?' + query_string
 
 
