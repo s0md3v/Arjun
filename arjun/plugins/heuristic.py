@@ -2,25 +2,43 @@ import re
 
 from arjun.core.utils import extract_js
 
-def is_not_junk(string):
-    return re.match(r'^[A-Za-z0-9_]+$', string)
+re_not_junk = re.compile(r'^[A-Za-z0-9_]+$')
+def is_not_junk(param):
+    return re_not_junk.match(param)
 
-def insert_words(words, wordlist, found):
-    if words:
-        for var in words:
-            if var not in found and is_not_junk(var):
-                found.append(var)
-                if var in wordlist:
-                    wordlist.remove(var)
-                wordlist.insert(0, var)
-
+# TODO: for map keys, javascript tolerates { param: "value" }
+re_input_names = re.compile(r'''(?i)<input.+?name=["']?([^"'\s>]+)''')
+re_input_ids = re.compile(r'''(?i)<input.+?id=["']?([^"'\s>]+)''')
+re_empty_vars = re.compile(r'''([^\s!=<>]+)\s*=\s*(?:['"`]{2}|true|false|null)''')
+re_map_keys = re.compile(r'''([^'"]+)['"]:\s?['"`]''')
 def heuristic(response, wordlist):
-    found = []
-    inputs = re.findall(r'(?i)<input.+?name=["\']?([^"\'\s>]+)', response)
-    insert_words(inputs, wordlist, found)
+    potential_params = []
+
+    # Parse Inputs
+    input_names = re_input_names.findall(response)
+    potential_params += input_names
+
+    input_ids = re_input_ids.findall(response)
+    potential_params += input_ids
+
+    # Parse Scripts
     for script in extract_js(response):
-        empty_vars = re.findall(r'([^\s!=<>]+)\s*=\s*[\'"`][\'"`]', script)
-        insert_words(empty_vars, wordlist, found)
-        map_keys = re.findall(r'([^\'"]+)[\'"]:\s?[\'"]', script)
-        insert_words(map_keys, wordlist, found)
-    return found
+        empty_vars = re_empty_vars.findall(script)
+        potential_params += empty_vars
+
+        map_keys = re_map_keys.findall(script)
+        potential_params += map_keys
+
+    if len(potential_params) == 0:
+        return []
+
+    found = set()
+    for word in potential_params:
+        if is_not_junk(word) and (word not in found):
+            found.add(word)
+
+            if word in wordlist:
+                wordlist.remove(word)
+            wordlist.insert(0, word)
+
+    return list(found)
