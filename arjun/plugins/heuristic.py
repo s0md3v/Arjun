@@ -4,13 +4,13 @@ from arjun.core.utils import extract_js
 
 re_not_junk = re.compile(r'^[A-Za-z0-9_]+$')
 def is_not_junk(param):
-    return re_not_junk.match(param)
+    return (re_not_junk.match(param) is not None)
 
 # TODO: for map keys, javascript tolerates { param: "value" }
 re_input_names = re.compile(r'''(?i)<input.+?name=["']?([^"'\s>]+)''')
 re_input_ids = re.compile(r'''(?i)<input.+?id=["']?([^"'\s>]+)''')
 re_empty_vars = re.compile(r'''([^\s!=<>]+)\s*=\s*(?:['"`]{2}|true|false|null)''')
-re_map_keys = re.compile(r'''([^'"]+)['"]:\s?['"`]''')
+re_map_keys = re.compile(r'''([^'"]+)['"]\s*:\s*['"`]''')
 def heuristic(response, wordlist):
     potential_params = []
 
