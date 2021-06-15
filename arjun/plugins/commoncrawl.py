@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 def commoncrawl(host, page=0):
 	these_params = set()
-	response = requests.get('http://index.commoncrawl.org/CC-MAIN-2020-29-index?url=*.%s&fl=url&page=%s&limit=10000' % (host, page)).text
+	response = requests.get('http://index.commoncrawl.org/CC-MAIN-2020-29-index?url=*.%s&fl=url&page=%s&limit=10000' % (host, page), verify=False).text
 	if response.startswith('<!DOCTYPE html>'):
 		return ([], False, 'commoncrawl')
 	urls = response.split('\n')

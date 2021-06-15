@@ -19,7 +19,8 @@ def wayback(host, page):
 		response = requests.get(
 			'http://web.archive.org/cdx/search?filter=mimetype:text/html&filter=statuscode:200',
 			params=payload,
-			headers=headers
+			headers=headers,
+			verify=False
 		).text
 		if not response:
 			return (these_params, False, 'wayback')

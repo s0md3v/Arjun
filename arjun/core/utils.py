@@ -158,11 +158,12 @@ def reader(path, mode='string'):
             return ''.join([line for line in file])
 
 
+re_extract_js = re.compile(r'(?si)<script[^>]*>([^<].+?)</script')
 def extract_js(response):
     """
     extracts javascript from a given string
     """
-    return re.findall(r'(?s)<script[^>]+>([^<].+?)</script', response.lower(), re.I)
+    return re_extract_js.findall(response)
 
 
 def parse_headers(string):
