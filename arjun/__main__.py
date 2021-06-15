@@ -15,7 +15,7 @@ from arjun.core.utils import fetch_params, stable_request, random_str, slicer, c
 
 from arjun.plugins.heuristic import heuristic
 
-arjun_dir = compatible_path(mem.__file__.replace('/core/config.py', ''))
+arjun_dir = compatible_path(mem.__file__.replace(compatible_path('/core/config.py'), ''))
 
 parser = argparse.ArgumentParser() # defines the parser
 # Arguments that can be supplied
@@ -25,7 +25,7 @@ parser.add_argument('-oT', help='Path for text output file.', dest='text_file')
 parser.add_argument('-oB', help='Port for output to Burp Suite Proxy. Default port is 8080.', dest='burp_port', nargs='?', const=8080)
 parser.add_argument('-d', help='Delay between requests in seconds. (default: 0)', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='Number of concurrent threads. (default: 2)', dest='threads', type=int, default=2)
-parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/default.txt)', dest='wordlist', default=arjun_dir+compatible_path('/db/default.txt'))
+parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/default.txt)', dest='wordlist', default=arjun_dir+'/db/default.txt')
 parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON. (default: GET)', dest='method', default='GET')
 parser.add_argument('-i', help='Import target URLs from file.', dest='import_file', nargs='?', const=True)
 parser.add_argument('-T', help='HTTP request timeout in seconds. (default: 15)', dest='timeout', type=float, default=15)
@@ -60,7 +60,7 @@ if mem.var['stable'] or mem.var['delay']:
     mem.var['threads'] = 1
 
 try:
-    wordlist_file = arjun_dir + compatible_path('/db/small.txt') if args.wordlist == 'small' else args.wordlist
+    wordlist_file = arjun_dir + '/db/small.txt' if args.wordlist == 'small' else args.wordlist
     wordlist_file = compatible_path(wordlist_file)
     wordlist = set(reader(wordlist_file, mode='lines'))
     if mem.var['passive']:
