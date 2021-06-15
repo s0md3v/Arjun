@@ -1,6 +1,6 @@
 #### 2.1.4
-- Fixed filepaths not being windows compatible
-- Fixed and improved JavaScript heurtics scanning
+- Fixed file-paths not being windows compatible
+- Fixed and improved JavaScript heuristics scanning
 - Fixed missing ampersands in `-oT` output
 - Refactoring of help options and code
 
