@@ -46,7 +46,7 @@ def define(response_1, response_2, param, value, wordlist):
 def compare(response, factors, params):
     """
     detects anomalies by comparing a HTTP response against a rule list
-    returns string, list (anamoly, list of parameters that caused it)
+    returns string, list (anomaly, list of parameters that caused it)
     """
     if factors['same_code'] and response.status_code != factors['same_code']:
         return ('http code', params)
