@@ -4,6 +4,7 @@
 from arjun.core.colors import green, end, info, bad, good, run, res
 
 import argparse
+import sys
 
 from urllib.parse import urlparse
 import arjun.core.config as mem
@@ -61,8 +62,11 @@ if mem.var['stable'] or mem.var['delay']:
 
 try:
     wordlist_file = arjun_dir + '/db/small.txt' if args.wordlist == 'small' else args.wordlist
-    wordlist_file = compatible_path(wordlist_file)
-    wordlist = set(reader(wordlist_file, mode='lines'))
+    if wordlist_file == "-":  # read from stdin
+        wordlist = [line.strip("\n") for line in sys.stdin] 
+    else:
+        wordlist_file = compatible_path(wordlist_file)
+        wordlist = set(reader(wordlist_file, mode='lines'))
     if mem.var['passive']:
         host = mem.var['passive']
         if host == '-':
