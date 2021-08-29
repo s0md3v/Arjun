@@ -87,15 +87,15 @@ def narrower(request, factors, param_groups):
     takes a list of parameters and narrows it down to parameters that cause anomalies
     returns list
     """
-    anamolous_params = []
+    anomalous_params = []
     threadpool = ThreadPoolExecutor(max_workers=mem.var['threads'])
     futures = (threadpool.submit(bruter, request, factors, params) for params in param_groups)
     for i, result in enumerate(as_completed(futures)):
         if result.result():
-            anamolous_params.extend(slicer(result.result()))
+            anomalous_params.extend(slicer(result.result()))
         if not mem.var['kill']:
             print('%s Processing chunks: %i/%-6i' % (info, i + 1, len(param_groups)), end='\r')
-    return anamolous_params
+    return anomalous_params
 
 
 def initialize(request, wordlist):
@@ -114,7 +114,7 @@ def initialize(request, wordlist):
     else:
         fuzz = random_str(6)
         response_1 = requester(request, {fuzz: fuzz[::-1]})
-        print('%s Analysing HTTP response for anamolies' % run)
+        print('%s Analysing HTTP response for anomalies' % run)
         fuzz = random_str(6)
         response_2 = requester(request, {fuzz: fuzz[::-1]})
         if type(response_1) == str or type(response_2) == str:

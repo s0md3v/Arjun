@@ -33,7 +33,7 @@
 - pypi package
 
 #### 2.0-beta
-- Added an anamoly detection algorithm with 9 factors
+- Added an anomaly detection algorithm with 9 factors
 - Added a HTTP response analyzer for handling errors and retrying requests
 - Significantly improved heuristic scanner
 - `--passive` option for collecting parameters from otx, commoncrawl and archive.org
