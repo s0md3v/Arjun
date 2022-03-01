@@ -29,7 +29,7 @@ def error_handler(response, factors):
 		if response.status_code == 400:
 			if factors['same_code'] != 400:
 				mem.var['kill'] = True
-				print('%s Server recieved a bad request. Try decreasing the chunk size with -c option' % bad)
+				print('%s Server received a bad request. Try decreasing the chunk size with -c option' % bad)
 				return 'kill'
 			else:
 				return 'ok'
