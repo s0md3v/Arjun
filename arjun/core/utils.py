@@ -31,7 +31,7 @@ def extract_headers(headers):
 def confirm(array_of_dicts, usable):
     """
     extracts the value from single valued dict from an array of dicts
-    returns a array of dicts
+    returns an array of dicts
     """
     param_groups = []
     for dic in array_of_dicts:
@@ -104,6 +104,7 @@ def diff_map(body_1, body_2):
 def random_str(n):
     """
     generates a random string of length n
+    returns a string containing only digits
     """
     return ''.join(str(random.choice(range(10))) for i in range(n))
 
@@ -111,6 +112,7 @@ def random_str(n):
 def get_params(include):
     """
     loads parameters from JSON/query string
+    return parameter dict
     """
     params = {}
     if include:
@@ -169,7 +171,7 @@ def extract_js(response):
 def parse_headers(string):
     """
     parses headers
-    return dict
+    returns dict
     """
     result = {}
     for line in string.split('\n'):
