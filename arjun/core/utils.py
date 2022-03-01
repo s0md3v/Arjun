@@ -112,7 +112,7 @@ def random_str(n):
 def get_params(include):
     """
     loads parameters from JSON/query string
-    return parameter dict
+    returns parameter dict
     """
     params = {}
     if include:
