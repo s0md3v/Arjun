@@ -19,7 +19,7 @@ def burp_export(result):
     """
     proxies = {
         'http': 'http://' + mem.var['burp_port'],
-        'https': 'http://' + mem.var['burp_port']
+        'https': 'https://' + mem.var['burp_port']
     }
     for url, data in result.items():
         if data['method'] == 'GET':
