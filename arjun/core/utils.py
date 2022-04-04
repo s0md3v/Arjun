@@ -66,15 +66,18 @@ def stable_request(url, headers):
     returns None in case of failure, returns a "response" object otherwise
     """
     parsed = urlparse(url)
+    redirects_allowed = False if mem.var['disable_redirects'] else True
     scheme, host, path = parsed.scheme, parsed.netloc, parsed.path
     schemes = (['https', 'http'] if scheme == 'https' else ['http', 'https'])
     for scheme in schemes:
         try:
-            return requests.get(
+            response = requests.get(
                 scheme + '://' + host + path,
                 headers=headers,
                 verify=False,
-                timeout=10).status_code
+                timeout=10,
+                allow_redirects=redirects_allowed)
+            return response.url
         except Exception as e:
             if 'ConnectionError' not in str(e):
                 continue
@@ -160,13 +163,16 @@ def reader(path, mode='string'):
             return ''.join([line for line in file])
 
 
-re_extract_js = re.compile(r'(?si)<script[^>]*>([^<].+?)</script')
 def extract_js(response):
     """
     extracts javascript from a given string
     """
-    return re_extract_js.findall(response)
-
+    scripts = []
+    for part in re.split('(?i)<script[> ]', response):
+        actual_parts = re.split('(?i)</script>', part, maxsplit=2)
+        if len(actual_parts) > 1:
+            scripts.append(actual_parts[0])
+    return scripts
 
 def parse_headers(string):
     """

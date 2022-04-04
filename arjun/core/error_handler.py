@@ -25,20 +25,21 @@ def error_handler(response, factors):
 		'kill': stop processing this target
 	returns str
 	"""
-	if type(response) != str and response.status_code in (400, 503, 429):
-		if response.status_code == 400:
-			if factors['same_code'] != 400:
+	if type(response) != str and response.status_code in (400, 413, 418, 429, 503):
+		if response.status_code == 503:
+			mem.var['kill'] = True
+			print('%s Target is unable to process requests, try --stable switch' % bad)
+			return 'kill'
+		elif response.status_code in (429, 418):
+			print('%s Target has a rate limit in place, try --stable switch' % bad)
+			return 'kill'
+		else:
+			if factors['same_code'] != response.status_code:
 				mem.var['kill'] = True
 				print('%s Server received a bad request. Try decreasing the chunk size with -c option' % bad)
 				return 'kill'
 			else:
 				return 'ok'
-		elif response.status_code == 503:
-			mem.var['kill'] = True
-			print('%s Target is unable to process requests, try --stable switch' % bad)
-			return 'kill'
-		elif response.status_code == 429:
-			return connection_refused()
 	else:
 		if 'Timeout' in response:
 			if mem.var['timeout'] > 20:

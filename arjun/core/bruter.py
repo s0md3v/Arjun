@@ -17,6 +17,7 @@ def bruter(request, factors, params, mode='bruteforce'):
     if conclusion == 'retry':
         return bruter(request, factors, params, mode=mode)
     elif conclusion == 'kill':
+        mem.var['kill'] = True
         return []
     comparison_result = compare(response, factors, params)
     if mode == 'verify':

@@ -1,6 +1,7 @@
 import re
 import requests
 
+from urllib.parse import urlparse
 from arjun.core.utils import diff_map, remove_tags
 
 
@@ -26,8 +27,9 @@ def define(response_1, response_2, param, value, wordlist):
             factors['same_code'] = response_1.status_code
         if response_1.headers.keys() == response_2.headers.keys():
             factors['same_headers'] = list(response_1.headers.keys())
-        if response_1.url == response_2.url:
-            factors['same_redirect'] = response_1.url
+            factors['same_headers'].sort()
+        if response_1.headers.get('Location', '') == response_2.headers.get('Location', ''):
+            factors['same_redirect'] = urlparse(response_1.headers.get('Location', '')).path
         if response_1.text == response_2.text:
             factors['same_body'] = response_1.text
         elif response_1.text.count('\n') == response_2.text.count('\n'):
@@ -48,11 +50,13 @@ def compare(response, factors, params):
     detects anomalies by comparing a HTTP response against a rule list
     returns string, list (anomaly, list of parameters that caused it)
     """
+    these_headers = list(response.headers.keys())
+    these_headers.sort()
     if factors['same_code'] and response.status_code != factors['same_code']:
         return ('http code', params)
-    if factors['same_headers'] and list(response.headers.keys()) != factors['same_headers']:
+    if factors['same_headers'] and these_headers != factors['same_headers']:
         return ('http headers', params)
-    if factors['same_redirect'] and response.url != factors['same_redirect']:
+    if factors['same_redirect'] and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
         return ('redirection', params)
     if factors['same_body'] and response.text != factors['same_body']:
         return ('body length', params)
@@ -66,7 +70,9 @@ def compare(response, factors, params):
                 return ('lines', params)
     if type(factors['param_missing']) == list:
         for param in params.keys():
-            if param in response.text and param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % param, response.text):
+            if len(param) < 5:
+                continue
+            if param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % param, response.text):
                 return ('param name reflection', params)
     if factors['value_missing']:
         for value in params.values():

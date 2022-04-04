@@ -9,8 +9,8 @@ def is_not_junk(param):
 # TODO: for map keys, javascript tolerates { param: "value" }
 re_input_names = re.compile(r'''(?i)<input.+?name=["']?([^"'\s>]+)''')
 re_input_ids = re.compile(r'''(?i)<input.+?id=["']?([^"'\s>]+)''')
-re_empty_vars = re.compile(r'''([^\s!=<>]+)\s*=\s*(?:['"`]{2}|true|false|null)''')
-re_map_keys = re.compile(r'''([^'"]+)['"]\s*:\s*['"`]''')
+re_empty_vars = re.compile(r'''(?:[;\n]|\bvar|\blet)(\w+)\s*=\s*(?:['"`]{1,2}|true|false|null)''')
+re_map_keys = re.compile(r'''['"](\w+?)['"]\s*:\s*['"`]''')
 def heuristic(response, wordlist):
     potential_params = []
 

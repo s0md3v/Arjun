@@ -25,16 +25,17 @@ parser.add_argument('-oT', help='Path for text output file.', dest='text_file')
 parser.add_argument('-oB', help='Port for output to Burp Suite Proxy. Default port is 8080.', dest='burp_port', nargs='?', const=8080)
 parser.add_argument('-d', help='Delay between requests in seconds. (default: 0)', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='Number of concurrent threads. (default: 2)', dest='threads', type=int, default=2)
-parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/default.txt)', dest='wordlist', default=arjun_dir+'/db/default.txt')
+parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/large.txt)', dest='wordlist', default=arjun_dir+'/db/large.txt')
 parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON. (default: GET)', dest='method', default='GET')
 parser.add_argument('-i', help='Import target URLs from file.', dest='import_file', nargs='?', const=True)
 parser.add_argument('-T', help='HTTP request timeout in seconds. (default: 15)', dest='timeout', type=float, default=15)
-parser.add_argument('-c', help='Chunk size. The number of parameters to be sent at once', type=int, dest='chunks', default=500)
+parser.add_argument('-c', help='Chunk size. The number of parameters to be sent at once', type=int, dest='chunks', default=300)
 parser.add_argument('-q', help='Quiet mode. No output.', dest='quiet', action='store_true')
 parser.add_argument('--headers', help='Add headers. Separate multiple headers with a new line.', dest='headers', nargs='?', const=True)
 parser.add_argument('--passive', help='Collect parameter names from passive sources like wayback, commoncrawl and otx.', dest='passive', nargs='?', const='-')
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
+parser.add_argument('--disable-redirects', help='Include this data in every request.', dest='disable_redirects', action='store_true')
 args = parser.parse_args() # arguments to be parsed
 
 if args.quiet:
@@ -58,6 +59,8 @@ mem.var['method'] = mem.var['method'].upper()
 
 if mem.var['stable'] or mem.var['delay']:
     mem.var['threads'] = 1
+if mem.var['wordlist'] in ('large', 'medium', 'small'):
+    mem.var['wordlist'] = f'{arjun_dir}/db/{mem.var["wordlist"]}.txt'
 
 try:
     wordlist_file = arjun_dir + '/db/small.txt' if args.wordlist == 'small' else args.wordlist
@@ -93,8 +96,9 @@ def narrower(request, factors, param_groups):
     for i, result in enumerate(as_completed(futures)):
         if result.result():
             anomalous_params.extend(slicer(result.result()))
-        if not mem.var['kill']:
-            print('%s Processing chunks: %i/%-6i' % (info, i + 1, len(param_groups)), end='\r')
+        if mem.var['kill']:
+            return anomalous_params
+        print('%s Processing chunks: %i/%-6i' % (info, i + 1, len(param_groups)), end='\r')
     return anomalous_params
 
 
@@ -108,8 +112,8 @@ def initialize(request, wordlist):
         print('%s %s is not a valid URL' % (bad, url))
         return 'skipped'
     print('%s Probing the target for stability' % run)
-    stable = stable_request(url, request['headers'])
-    if not stable:
+    request['url'] = stable_request(url, request['headers'])
+    if not request['url']:
         return 'skipped'
     else:
         fuzz = random_str(6)
