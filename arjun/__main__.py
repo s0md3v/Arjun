@@ -35,7 +35,7 @@ parser.add_argument('--headers', help='Add headers. Separate multiple headers wi
 parser.add_argument('--passive', help='Collect parameter names from passive sources like wayback, commoncrawl and otx.', dest='passive', nargs='?', const='-')
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
-parser.add_argument('--disable-redirects', help='Include this data in every request.', dest='disable_redirects', action='store_true')
+parser.add_argument('--disable-redirects', help='disable redirects', dest='disable_redirects', action='store_true')
 args = parser.parse_args() # arguments to be parsed
 
 if args.quiet:
