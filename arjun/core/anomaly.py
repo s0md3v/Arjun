@@ -1,6 +1,8 @@
 import re
 import requests
 
+import arjun.core.config as mem
+
 from urllib.parse import urlparse
 from arjun.core.utils import diff_map, remove_tags
 
@@ -28,8 +30,13 @@ def define(response_1, response_2, param, value, wordlist):
         if response_1.headers.keys() == response_2.headers.keys():
             factors['same_headers'] = list(response_1.headers.keys())
             factors['same_headers'].sort()
-        if response_1.headers.get('Location', '') == response_2.headers.get('Location', ''):
-            factors['same_redirect'] = urlparse(response_1.headers.get('Location', '')).path
+        if mem.var['disable_redirects']:
+            if response_1.headers.get('Location', '') == response_2.headers.get('Location', ''):
+                factors['same_redirect'] = urlparse(response_1.headers.get('Location', '')).path
+        elif urlparse(response_1.url).path == urlparse(response_2.url).path:
+            factors['same_redirect'] = urlparse(response_1.url).path
+        else:
+            factors['same_redirect'] = ''
         if response_1.text == response_2.text:
             factors['same_body'] = response_1.text
         elif response_1.text.count('\n') == response_2.text.count('\n'):
@@ -56,8 +63,12 @@ def compare(response, factors, params):
         return ('http code', params)
     if factors['same_headers'] and these_headers != factors['same_headers']:
         return ('http headers', params)
-    if factors['same_redirect'] and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
-        return ('redirection', params)
+    if mem.var['disable_redirects']:
+        if factors['same_redirect'] and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
+            return ('redirection', params)
+    elif factors['same_redirect'] and 'Location' in response.headers:
+        if urlparse(response.headers.get['Location']).path != factors['same_redirect']:
+            return ('redirection', params)
     if factors['same_body'] and response.text != factors['same_body']:
         return ('body length', params)
     if factors['lines_num'] and response.text.count('\n') != factors['lines_num']:
