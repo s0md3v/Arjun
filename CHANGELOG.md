@@ -1,3 +1,9 @@
+#### 2.1.5
+- Fixed header comparison (will fix infinite bruteforce on some targets)
+- Fixed catastrophic backtracking in some regexes (arjun used to get stuck)
+- New logic for handling redirections
+- `--disable-redirects` option
+
 #### 2.1.4
 - Fixed file-paths not being windows compatible
 - Fixed and improved JavaScript heuristics scanning
