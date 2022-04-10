@@ -24,7 +24,7 @@
   </a>
 </p>
 
-![demo](https://i.ibb.co/q5F8qPY/Screenshot-2020-12-06-21-54-52.png)
+![demo](https://i.ibb.co/p3VKSRJ/arjun-demo.png)
 
 ### What's Arjun?
 
