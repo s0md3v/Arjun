@@ -52,13 +52,22 @@ def define(response_1, response_2, param, value, wordlist):
     return factors
 
 
-def compare(response, factors, params):
+def compare(response, factors, params,match_string=None,match_regex=None):
     """
     detects anomalies by comparing a HTTP response against a rule list
     returns string, list (anomaly, list of parameters that caused it)
     """
     these_headers = list(response.headers.keys())
     these_headers.sort()
+    match_string=match_string.split(",")
+    if len(match_string) == 1 and match_string[0] == "":
+        pass
+    else:
+        for string_match in match_string:
+            if string_match in response.text:
+                return ('match string',params)
+    if match_regex and re.match(rf"{match_regex}", response.text):
+        return ('match regex',params)
     if factors['same_code'] and response.status_code != factors['same_code']:
         return ('http code', params)
     if factors['same_headers'] and these_headers != factors['same_headers']:

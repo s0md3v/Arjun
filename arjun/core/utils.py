@@ -52,12 +52,15 @@ def slicer(dic, n=2):
     return [dict(listed[i * k + min(i, m):(i + 1) * k + min(i + 1, m)]) for i in range(n)]
 
 
-def populate(array):
+def populate(array,word=None):
     """
     converts a list of parameters into parameter and value pair
     returns dict
     """
-    return {name: '1' * (6 - len(str(i))) + str(i) for i, name in enumerate(array)}
+    if word and "{random}" in v:
+        return {name: word.replace("{random}",'1' * (6 - len(str(random))) + str(random),1) for random, name in enumerate(array)}
+    else:
+        return {name: '1' * (6 - len(str(i))) + str(i) for i, name in enumerate(array)}
 
 
 def stable_request(url, headers):

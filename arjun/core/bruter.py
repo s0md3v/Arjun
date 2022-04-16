@@ -5,7 +5,7 @@ from arjun.core.requester import requester
 from arjun.core.error_handler import error_handler
 
 
-def bruter(request, factors, params, mode='bruteforce'):
+def bruter(request, factors, params, mode='bruteforce',match_string=None,match_regex=None):
     """
     returns anomaly detection result for a chunk of parameters
     returns list
@@ -19,7 +19,7 @@ def bruter(request, factors, params, mode='bruteforce'):
     elif conclusion == 'kill':
         mem.var['kill'] = True
         return []
-    comparison_result = compare(response, factors, params)
+    comparison_result = compare(response, factors, params,match_string,match_regex)
     if mode == 'verify':
         return comparison_result[0]
     return comparison_result[1]

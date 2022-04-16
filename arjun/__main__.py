@@ -4,7 +4,7 @@
 from arjun.core.colors import green, end, info, bad, good, run, res
 
 import argparse
-
+import re
 from urllib.parse import urlparse
 import arjun.core.config as mem
 from arjun.core.bruter import bruter
@@ -36,6 +36,9 @@ parser.add_argument('--passive', help='Collect parameter names from passive sour
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
 parser.add_argument('--disable-redirects', help='disable redirects', dest='disable_redirects', action='store_true')
+parser.add_argument('-ps','--put-string', help='add string {random}', dest='put_word',default="")
+parser.add_argument('-ms','--match-string', help='Match String from response', dest='match_string',default="")
+parser.add_argument('-mr','--match-regex',help='Match Regex', dest='match_regex',default="")
 args = parser.parse_args() # arguments to be parsed
 
 if args.quiet:
@@ -84,15 +87,24 @@ if len(wordlist) < mem.var['chunks']:
 if not args.url and not args.import_file:
     exit('%s No target(s) specified' % bad)
 
+#Check if the regex is valid or not 
+try:
+    re.compile(args.match_regex)
+except re.error:
+    exit("%s Regex is not valid" % bad)
 
-def narrower(request, factors, param_groups):
+#Check if args.put_word has {random} tag or not
+if args.put_word and "{random}" not in args.put_word:
+    exit("%s check {random} tag at -pw " % bad)
+
+def narrower(request, factors, param_groups,match_string,match_regex):
     """
     takes a list of parameters and narrows it down to parameters that cause anomalies
     returns list
     """
     anomalous_params = []
     threadpool = ThreadPoolExecutor(max_workers=mem.var['threads'])
-    futures = (threadpool.submit(bruter, request, factors, params) for params in param_groups)
+    futures = (threadpool.submit(bruter, request, factors, params,match_string=match_string,match_regex=match_regex) for params in param_groups)
     for i, result in enumerate(as_completed(futures)):
         if result.result():
             anomalous_params.extend(slicer(result.result()))
@@ -131,11 +143,11 @@ def initialize(request, wordlist):
             s = 's' if num > 1 else ''
             print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
         print('%s Logicforcing the URL endpoint' % run)
-        populated = populate(wordlist)
+        populated = populate(wordlist,args.put_word)
         param_groups = slicer(populated, int(len(wordlist)/mem.var['chunks']))
         last_params = []
         while True:
-            param_groups = narrower(request, factors, param_groups)
+            param_groups = narrower(request, factors, param_groups,match_string=args.match_string,match_regex=args.match_regex)
             if mem.var['kill']:
                 return 'skipped'
             param_groups = confirm(param_groups, last_params)
@@ -143,13 +155,12 @@ def initialize(request, wordlist):
                 break
         confirmed_params = []
         for param in last_params:
-            reason = bruter(request, factors, param, mode='verify')
+            reason = bruter(request, factors, param, mode='verify',match_string=args.match_string,match_regex=args.match_regex)
             if reason:
                 name = list(param.keys())[0]
                 confirmed_params.append(name)
                 print('%s name: %s, factor: %s' % (res, name, reason))
         return confirmed_params
-
 
 def main():
     request = prepare_requests(args)
