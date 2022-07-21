@@ -36,6 +36,7 @@ parser.add_argument('--passive', help='Collect parameter names from passive sour
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
 parser.add_argument('--disable-redirects', help='disable redirects', dest='disable_redirects', action='store_true')
+parser.add_argument('-p', '--proxy', help='Use a proxy. Format: 127.0.0.1:8080 (default: None)', dest='proxy', nargs='?', default={})
 args = parser.parse_args() # arguments to be parsed
 
 if args.quiet:

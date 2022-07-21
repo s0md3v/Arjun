@@ -23,6 +23,7 @@ def requester(request, payload={}):
     url = request['url']
     if mem.var['kill']:
         return 'killed'
+    if mem.var['proxy']: proxies = {'http': 'http://'+mem.var['proxy'], 'https': 'https://'+mem.var['proxy']}
     try:
         if request['method'] == 'GET':
             response = requests.get(url,
@@ -31,6 +32,7 @@ def requester(request, payload={}):
                 verify=False,
                 allow_redirects=False,
                 timeout=mem.var['timeout'],
+                proxies=proxies,
             )
         elif request['method'] == 'JSON':
             request['headers']['Content-Type'] = 'application/json'
@@ -43,6 +45,7 @@ def requester(request, payload={}):
                     verify=False,
                     allow_redirects=False,
                     timeout=mem.var['timeout'],
+                    proxies=proxies,
                 )
             else:
                 response = requests.post(url,
@@ -51,6 +54,7 @@ def requester(request, payload={}):
                     verify=False,
                     allow_redirects=False,
                     timeout=mem.var['timeout'],
+                    proxies=proxies,
                 )
         elif request['method'] == 'XML':
             request['headers']['Content-Type'] = 'application/xml'
@@ -62,6 +66,7 @@ def requester(request, payload={}):
                 verify=False,
                 allow_redirects=False,
                 timeout=mem.var['timeout'],
+                proxies=proxies,
             )
         else:
             response = requests.post(url,
@@ -70,6 +75,7 @@ def requester(request, payload={}):
                 verify=False,
                 allow_redirects=False,
                 timeout=mem.var['timeout'],
+                proxies=proxies,
             )
         return response
     except Exception as e:
