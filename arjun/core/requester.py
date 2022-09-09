@@ -23,7 +23,7 @@ def requester(request, payload={}):
     url = request['url']
     if mem.var['kill']:
         return 'killed'
-    if mem.var['proxy']: proxies = {'http': 'http://'+mem.var['proxy'], 'https': 'https://'+mem.var['proxy']}
+    proxies = {'http': 'http://'+mem.var['proxy'], 'https': 'https://'+mem.var['proxy']} if mem.var["proxy"] else None
     try:
         if request['method'] == 'GET':
             response = requests.get(url,
