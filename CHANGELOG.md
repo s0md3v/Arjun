@@ -1,3 +1,8 @@
+#### 2.1.6
+- Fixed multiple crash-level bugs
+- Various improvements to output in multi-target mode
+- Export results as they come in multi-target mode
+
 #### 2.1.5
 - Fixed header comparison (will fix infinite bruteforce on some targets)
 - Fixed catastrophic backtracking in some regexes (arjun used to get stuck)

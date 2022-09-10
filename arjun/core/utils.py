@@ -122,6 +122,8 @@ def get_params(include):
         if include.startswith('{'):
             try:
                 params = json.loads(str(include).replace('\'', '"'))
+                if type(params) != dict:
+                    return {}
                 return params
             except json.decoder.JSONDecodeError:
                 return {}

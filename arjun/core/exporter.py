@@ -33,7 +33,7 @@ def text_export(result):
     """
     exports results to a text file, one url per line
     """
-    with open(mem.var['text_file'], 'w+', encoding='utf8') as text_file:
+    with open(mem.var['text_file'], 'a+', encoding='utf8') as text_file:
         for url, data in result.items():
             clean_url = url.lstrip('/')
             if data['method'] == 'JSON':
