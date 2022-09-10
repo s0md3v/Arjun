@@ -57,6 +57,8 @@ def compare(response, factors, params):
     detects anomalies by comparing a HTTP response against a rule list
     returns string, list (anomaly, list of parameters that caused it)
     """
+    if response == '':
+        return ('', [])
     these_headers = list(response.headers.keys())
     these_headers.sort()
     if factors['same_code'] and response.status_code != factors['same_code']:
@@ -67,7 +69,7 @@ def compare(response, factors, params):
         if factors['same_redirect'] and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
             return ('redirection', params)
     elif factors['same_redirect'] and 'Location' in response.headers:
-        if urlparse(response.headers.get['Location']).path != factors['same_redirect']:
+        if urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
             return ('redirection', params)
     if factors['same_body'] and response.text != factors['same_body']:
         return ('body length', params)
@@ -87,6 +89,8 @@ def compare(response, factors, params):
                 return ('param name reflection', params)
     if factors['value_missing']:
         for value in params.values():
+            if type(value) != str:
+                continue
             if value in response.text and re.search(r'[\'"\s]%s[\'"\s]' % value, response.text):
                 return ('param value reflection', params)
     return ('', [])

@@ -1,3 +1,9 @@
+#### 2.1.6
+- Fixed multiple breaking bugs
+- Export results as they come in multi-target mode
+- Various improvements to output in multi-target mode
+- changed default chunk size 300->500 and threads to 2->5
+
 #### 2.1.5
 - Fixed header comparison (will fix infinite bruteforce on some targets)
 - Fixed catastrophic backtracking in some regexes (arjun used to get stuck)

@@ -3,6 +3,8 @@ import re
 from arjun.core.utils import extract_js
 
 re_not_junk = re.compile(r'^[A-Za-z0-9_]+$')
+
+
 def is_not_junk(param):
     return (re_not_junk.match(param) is not None)
 
@@ -11,6 +13,8 @@ re_input_names = re.compile(r'''(?i)<input.+?name=["']?([^"'\s>]+)''')
 re_input_ids = re.compile(r'''(?i)<input.+?id=["']?([^"'\s>]+)''')
 re_empty_vars = re.compile(r'''(?:[;\n]|\bvar|\blet)(\w+)\s*=\s*(?:['"`]{1,2}|true|false|null)''')
 re_map_keys = re.compile(r'''['"](\w+?)['"]\s*:\s*['"`]''')
+
+
 def heuristic(response, wordlist):
     potential_params = []
 
