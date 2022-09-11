@@ -148,7 +148,7 @@ def initialize(request, wordlist, single_url=False):
             param_groups = narrower(request, factors, param_groups)
             if len(param_groups) > prev_chunk_count:
                 response_3 = requester(request, {fuzz: fuzz[::-1]})
-                if compare(response_3, factors, [fuzz]) != '':
+                if compare(response_3, factors, {fuzz: fuzz[::-1]}) != '':
                     print('%s Target is misbehaving. Try the --stable swtich.' % bad)
                     return []
             if mem.var['kill']:
