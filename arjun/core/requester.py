@@ -18,7 +18,7 @@ def requester(request, payload={}):
     if len(request.get('include', '')) != 0:
         payload.update(request['include'])
     if mem.var['stable']:
-        mem.var['delay'] = random.choice(range(6, 12))
+        mem.var['delay'] = random.choice(range(3, 10))
     time.sleep(mem.var['delay'])
     url = request['url']
     if mem.var['kill']:
