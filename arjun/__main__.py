@@ -4,6 +4,7 @@
 from arjun.core.colors import green, end, info, bad, good, run, res
 
 import argparse
+import json
 
 from urllib.parse import urlparse
 import arjun.core.config as mem
@@ -26,7 +27,7 @@ parser.add_argument('-oB', help='Port for output to Burp Suite Proxy. Default po
 parser.add_argument('-d', help='Delay between requests in seconds. (default: 0)', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='Number of concurrent threads. (default: 5)', dest='threads', type=int, default=5)
 parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/large.txt)', dest='wordlist', default=arjun_dir+'/db/large.txt')
-parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON. (default: GET)', dest='method', default='GET')
+parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON/HEADERS. (default: GET)', dest='method', default='GET')
 parser.add_argument('-i', help='Import target URLs from file.', dest='import_file', nargs='?', const=True)
 parser.add_argument('-T', help='HTTP request timeout in seconds. (default: 15)', dest='timeout', type=float, default=15)
 parser.add_argument('-c', help='Chunk size. The number of parameters to be sent at once', type=int, dest='chunks', default=500)
@@ -127,14 +128,19 @@ def initialize(request, wordlist, single_url=False):
         factors = define(response_1, response_2, fuzz, fuzz[::-1], wordlist)
         if single_url:
             print('%s Analysing HTTP response for potential parameter names' % run)
-        found = heuristic(response_1.text, wordlist)
+        found, words_exist = heuristic(response_1, wordlist)
         if found:
             num = len(found)
-            s = 's' if num > 1 else ''
-            print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
+            if words_exist:
+                 print('%s Heuristic scanner found %i parameters' % (good, num))
+            else:
+                s = 's' if num > 1 else ''
+                print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
         if single_url:
             print('%s Logicforcing the URL endpoint' % run)
         populated = populate(wordlist)
+        with open(f'{arjun_dir}/db/special.json', 'r') as f:
+            populated.update(json.load(f))
         param_groups = slicer(populated, int(len(wordlist)/mem.var['chunks']))
         prev_chunk_count = len(param_groups)
         last_params = []
@@ -157,7 +163,8 @@ def initialize(request, wordlist, single_url=False):
             if reason:
                 name = list(param.keys())[0]
                 confirmed_params.append(name)
-                print('%s parameter detected: %s, based on: %s' % (res, name, reason))
+                if single_url:
+                    print('%s parameter detected: %s, based on: %s' % (res, name, reason))
         return confirmed_params
 
 
@@ -171,7 +178,7 @@ def main():
             # in case of a single target
             mem.var['kill'] = False
             url = request['url']
-            these_params = initialize(request, wordlist)
+            these_params = initialize(request, wordlist, single_url=True)
             if these_params == 'skipped':
                 print('%s Skipped %s due to errors' % (bad, request['url']))
             elif these_params:
@@ -179,6 +186,7 @@ def main():
                 final_result[url]['params'] = these_params
                 final_result[url]['method'] = request['method']
                 final_result[url]['headers'] = request['headers']
+                print('%s Parameters found: %s' % (good, ', '.join(final_result[url]['params'])))
                 exporter(final_result)
             else:
                 print('%s No parameters were discovered.' % info)

@@ -1,3 +1,9 @@
+#### 2.2.0
+- Ability to detect parameters that respond to a certain value e.g. "?debug=yes"
+- Added "required parameter" detection 
+- Heuristic can now extract words out of json/text responses
+- Fixed -oB option description
+
 #### 2.1.6
 - Fixed multiple crash-level bugs
 - Various improvements to output in multi-target mode

@@ -89,7 +89,7 @@ def compare(response, factors, params):
                 return ('param name reflection', params)
     if factors['value_missing']:
         for value in params.values():
-            if type(value) != str:
+            if type(value) != str or len(value) != 6:
                 continue
             if value in response.text and re.search(r'[\'"\s]%s[\'"\s]' % value, response.text):
                 return ('param value reflection', params)
