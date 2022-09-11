@@ -74,4 +74,5 @@ Direct links to some basic options are given below:
 Optionally, you can use the `--help` argument to explore Arjun on your own.
 
 ##### Credits
-The parameter names wordlist is created by extracting top parameter names from [CommonCrawl](http://commoncrawl.org) dataset and merging best words from [SecLists](https://github.com/danielmiessler/SecLists) and [param-miner](https://github.com/PortSwigger/param-miner) wordlists into that.
+The parameter names wordlist is created by extracting top parameter names from [CommonCrawl](http://commoncrawl.org) dataset and merging best words from [SecLists](https://github.com/danielmiessler/SecLists) and [param-miner](https://github.com/PortSwigger/param-miner) wordlists into that.\
+`db/special.json` wordlist is taken from [data-payloads](https://github.com/yehgdotnet/data-payloads).
