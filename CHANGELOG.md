@@ -58,7 +58,7 @@
 - `-c` option to define number of parameters to be sent at once
 - import via `-i` options now supports: BurpSuite log, raw request file, text file with urls
 - `-T` option to specify HTTP connection timeout
-- combined `-m` option for specifiying HTTP request method
+- combined `-m` option for specifying HTTP request method
 - Various bug fixes and better output
 
 #### 1.6

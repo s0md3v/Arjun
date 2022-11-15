@@ -24,7 +24,7 @@ def heuristic(raw_response, wordlist):
         if len(response) < 200:
             if ('required' or 'missing' or 'not found' or 'requires') in response.lower() and ('param' or 'parameter' or 'field') in response.lower():
                 if not mem.var['quiet']:
-                    print('%s The endpoint seems to require certain parameters to function. Check the repsonse and use the --include option appropriately for better results.' % info)
+                    print('%s The endpoint seems to require certain parameters to function. Check the response and use the --include option appropriately for better results.' % info)
             words_exist = True
             potential_params = re_words.findall(response)
     # Parse Inputs
