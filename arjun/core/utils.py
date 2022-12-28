@@ -60,6 +60,38 @@ def populate(array):
     return {name: '1' * (6 - len(str(i))) + str(i) for i, name in enumerate(array)}
 
 
+def tor_stable_request(url, headers):
+    """
+    guarantees crash-proof HTTP(S) requests
+    returns None in case of failure, returns a "response" object otherwise
+    """
+    parsed = urlparse(url)
+    redirects_allowed = False if mem.var['disable_redirects'] else True
+    scheme, host, path = parsed.scheme, parsed.netloc, parsed.path
+    schemes = (['https', 'http'] if scheme == 'https' else ['http', 'https'])
+    for scheme in schemes:
+        try:
+
+            pproxies = {}
+            pproxies['http'] = 'socks5h://127.0.0.1:9150'
+            pproxies['https'] = 'socks5h://127.0.0.1:9150'
+
+            response = requests.get(
+                scheme + '://' + host + path,
+                headers=headers,
+                verify=False,
+                timeout=10,
+                allow_redirects=redirects_allowed,
+                proxies=pproxies)
+            return response.url
+        except Exception as e:
+            if 'ConnectionError' not in str(e):
+                print(e)
+                print('if it works in the tor browser increas the timeout')
+                continue
+        return None
+
+
 def stable_request(url, headers):
     """
     guarantees crash-proof HTTP(S) requests
@@ -262,11 +294,22 @@ def prepare_requests(args):
         headers['Content-type'] = 'application/json'
     if args.url:
         params = get_params(args.include)
+        if len(args.cookies) > 0:
+            cook = parseHeaders(args.cookies)
+        else:
+            cook = None
+
+        if args.tor:
+            tor = True
+        else:
+            tor = None
         return {
             'url': args.url,
             'method': mem.var['method'],
             'headers': headers,
-            'include': params
+            'include': params,
+            'proxie': tor,
+            'cookies': cook
         }
     elif args.import_file:
         return importer(args.import_file, mem.var['method'], headers, args.include)
@@ -296,3 +339,11 @@ def compatible_path(path):
     if sys.platform.lower().startswith('win'):
         return path.replace('/', '\\')
     return path
+
+def parseHeaders(heads) -> dict:
+    prams = heads.replace('\'','').split(',')
+    ind = {}
+    for x in prams:
+        items = x.split(':')
+        ind[str(items[0])]=items[1]
+    return ind
