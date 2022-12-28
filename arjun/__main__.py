@@ -12,7 +12,7 @@ from arjun.core.bruter import bruter
 from arjun.core.exporter import exporter
 from arjun.core.requester import requester
 from arjun.core.anomaly import define, compare
-from arjun.core.utils import fetch_params, stable_request, random_str, slicer, confirm, populate, reader, nullify, prepare_requests, compatible_path
+from arjun.core.utils import fetch_params, stable_request, random_str, slicer, confirm, populate, reader, nullify, prepare_requests, compatible_path, tor_stable_request
 
 from arjun.plugins.heuristic import heuristic
 
@@ -37,6 +37,8 @@ parser.add_argument('--passive', help='Collect parameter names from passive sour
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
 parser.add_argument('--disable-redirects', help='disable redirects', dest='disable_redirects', action='store_true')
+parser.add_argument('--tor', help='proxy over tor', dest='tor', action='store_true')
+parser.add_argument('--cookie', help='add cookies EX: phpsession:fadsfdasf,username:funguy ', dest='cookies')
 args = parser.parse_args() # arguments to be parsed
 
 if args.quiet:
@@ -113,7 +115,11 @@ def initialize(request, wordlist, single_url=False):
         print('%s %s is not a valid URL' % (bad, url))
         return 'skipped'
     print('%s Probing the target for stability' % run)
-    request['url'] = stable_request(url, request['headers'])
+    if request['proxie']:
+        request['url'] = tor_stable_request(url, request['headers'])
+    else:
+        request['url'] = stable_request(url, request['headers'])
+        
     if not request['url']:
         return 'skipped'
     else:
