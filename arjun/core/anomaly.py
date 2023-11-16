@@ -58,39 +58,39 @@ def compare(response, factors, params):
     returns string, list (anomaly, list of parameters that caused it)
     """
     if response == '':
-        return ('', [])
+        return ('', [], '')
     these_headers = list(response.headers.keys())
     these_headers.sort()
     if factors['same_code'] and response.status_code != factors['same_code']:
-        return ('http code', params)
+        return ('http code', params, 'same_code')
     if factors['same_headers'] and these_headers != factors['same_headers']:
-        return ('http headers', params)
+        return ('http headers', params, 'same_headers')
     if mem.var['disable_redirects']:
         if factors['same_redirect'] and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
-            return ('redirection', params)
+            return ('redirection', params, 'same_redirect')
     elif factors['same_redirect'] and 'Location' in response.headers:
         if urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
-            return ('redirection', params)
+            return ('redirection', params, 'same_redirect')
     if factors['same_body'] and response.text != factors['same_body']:
-        return ('body length', params)
+        return ('body length', params, 'same_body')
     if factors['lines_num'] and response.text.count('\n') != factors['lines_num']:
-        return ('number of lines', params)
+        return ('number of lines', params, 'lines_num')
     if factors['same_plaintext'] and remove_tags(response.text) != factors['same_plaintext']:
-        return ('text length', params)
+        return ('text length', params, 'same_plaintext')
     if factors['lines_diff']:
         for line in factors['lines_diff']:
             if line not in response.text:
-                return ('lines', params)
+                return ('lines', params, 'lines_diff')
     if type(factors['param_missing']) == list:
         for param in params.keys():
             if len(param) < 5:
                 continue
             if param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % param, response.text):
-                return ('param name reflection', params)
+                return ('param name reflection', params, 'param_missing')
     if factors['value_missing']:
         for value in params.values():
             if type(value) != str or len(value) != 6:
                 continue
             if value in response.text and re.search(r'[\'"\s]%s[\'"\s]' % value, response.text):
-                return ('param value reflection', params)
-    return ('', [])
+                return ('param value reflection', params, 'value_missing')
+    return ('', [], '')

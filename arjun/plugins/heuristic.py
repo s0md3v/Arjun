@@ -7,8 +7,7 @@ from arjun.core.utils import extract_js
 # TODO: for map keys, javascript tolerates { param: "value" }
 re_words = re.compile(r'[A-Za-z][A-Za-z0-9_]*')
 re_not_junk = re.compile(r'^[A-Za-z0-9_]+$')
-re_input_names = re.compile(r'''(?i)<input.+?name=["']?([^"'\s>]+)''')
-re_input_ids = re.compile(r'''(?i)<input.+?id=["']?([^"'\s>]+)''')
+re_inputs = re.compile(r'''(?i)<(?:input|textarea)[^>]+?(?:id|name)=["']?([^"'\s>]+)''')
 re_empty_vars = re.compile(r'''(?:[;\n]|\bvar|\blet)(\w+)\s*=\s*(?:['"`]{1,2}|true|false|null)''')
 re_map_keys = re.compile(r'''['"](\w+?)['"]\s*:\s*['"`]''')
 
@@ -28,11 +27,8 @@ def heuristic(raw_response, wordlist):
             words_exist = True
             potential_params = re_words.findall(response)
     # Parse Inputs
-    input_names = re_input_names.findall(response)
+    input_names = re_inputs.findall(response)
     potential_params += input_names
-
-    input_ids = re_input_ids.findall(response)
-    potential_params += input_ids
 
     # Parse Scripts
     for script in extract_js(response):

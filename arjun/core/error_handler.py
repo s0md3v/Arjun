@@ -35,9 +35,11 @@ def error_handler(response, factors):
 			return 'kill'
 		else:
 			if factors['same_code'] != response.status_code:
-				mem.var['kill'] = True
-				print('%s Server received a bad request. Try decreasing the chunk size with -c option' % bad)
-				return 'kill'
+				mem.var['bad_req_count'] = mem.var.get('bad_req_count', 0) + 1
+				if mem.var['bad_req_count'] > 20:
+					mem.var['kill'] = True
+					print('%s Server received a bad request. Try decreasing the chunk size with -c option' % bad)
+					return 'kill'
 			else:
 				return 'ok'
 	else:
@@ -45,6 +47,7 @@ def error_handler(response, factors):
 			if mem.var['timeout'] > 20:
 				mem.var['kill'] = True
 				print('%s Connection timed out, unable to increase timeout further' % bad)
+				print('%s Target might have a rate limit in place, try --stable switch' % bad)
 				return 'kill'
 			else:
 				print('%s Connection timed out, increased timeout by 5 seconds' % bad)

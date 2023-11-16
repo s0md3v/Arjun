@@ -1,3 +1,10 @@
+#### 2.2.2
+- Probing improvements
+- Fix "target is misbehaving" errors
+- Variable chunk size depending on HTTP method
+- Improved heuristics
+- Allow up to 20 "server fault" errors
+
 #### 2.2.0
 - Ability to detect parameters that respond to a certain value e.g. "?debug=yes"
 - Added "required parameter" detection 
