@@ -17,9 +17,10 @@ def burp_export(result):
     """
     exports results to Burp Suite by sending request to Burp proxy
     """
+    proxy = ('' if ':' in mem.var['burp_proxy'] else '127.0.0.1:') + mem.var['burp_proxy']
     proxies = {
-        'http': 'http://127.0.0.1:' + mem.var['burp_port'],
-        'https': 'https://127.0.0.1:' + mem.var['burp_port']
+        'http': 'http://' + proxy,
+        'https': 'https://' + proxy
     }
     for url, data in result.items():
         if data['method'] == 'GET':
@@ -55,5 +56,5 @@ def exporter(result):
         json_export(result)
     if mem.var['text_file']:
         text_export(result)
-    if mem.var['burp_port']:
+    if mem.var['burp_proxy']:
         burp_export(result)
