@@ -55,8 +55,6 @@ except ImportError:
 
 mem.var = vars(args)
 
-print(mem.var)
-
 mem.var['method'] = mem.var['method'].upper()
 
 if mem.var['method'] != 'GET':
