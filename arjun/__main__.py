@@ -8,9 +8,7 @@ import json
 
 from urllib.parse import urlparse
 import arjun.core.config as mem
-from arjun.core.bruter import bruter
 from arjun.core.exporter import exporter
-from arjun.core.requester import requester
 from arjun.core.anomaly import define, compare
 from arjun.core.utils import fetch_params, stable_request, random_str, slicer, confirm, populate, reader, nullify, prepare_requests, compatible_path
 
@@ -89,6 +87,8 @@ if len(wordlist) < mem.var['chunks']:
 if not args.url and not args.import_file:
     exit('%s No target(s) specified' % bad)
 
+from arjun.core.requester import requester
+from arjun.core.bruter import bruter
 
 def narrower(request, factors, param_groups):
     """
