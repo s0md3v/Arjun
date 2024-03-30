@@ -57,7 +57,7 @@ def compare(response, factors, params):
     detects anomalies by comparing a HTTP response against a rule list
     returns string, list (anomaly, list of parameters that caused it)
     """
-    if response == '':
+    if response == '' or type(response) == str:
         return ('', [], '')
     these_headers = list(response.headers.keys())
     these_headers.sort()
