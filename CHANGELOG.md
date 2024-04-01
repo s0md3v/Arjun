@@ -1,3 +1,7 @@
+#### 2.2.5
+- Skip scanning of non-webpage urls
+- Various bug fixes
+
 #### 2.2.2
 - Probing improvements
 - Fix "target is misbehaving" errors
