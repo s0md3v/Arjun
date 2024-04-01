@@ -18,7 +18,7 @@ def requester(request, payload={}):
     central function for making http requests
     returns str on error otherwise response object of requests library
     """
-    if len(request.get('include', '')) != 0:
+    if request.get('include') and len(request.get('include', '')) != 0:
         payload.update(request['include'])
     if mem.var['stable']:
         mem.var['delay'] = random.choice(range(3, 10))

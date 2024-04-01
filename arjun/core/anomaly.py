@@ -85,12 +85,12 @@ def compare(response, factors, params):
         for param in params.keys():
             if len(param) < 5:
                 continue
-            if param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % param, response.text):
+            if param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % re.escape(param), response.text):
                 return ('param name reflection', params, 'param_missing')
     if factors['value_missing']:
         for value in params.values():
             if type(value) != str or len(value) != 6:
                 continue
-            if value in response.text and re.search(r'[\'"\s]%s[\'"\s]' % value, response.text):
+            if value in response.text and re.search(r'[\'"\s]%s[\'"\s]' % re.escape(value), response.text):
                 return ('param value reflection', params, 'value_missing')
     return ('', [], '')
