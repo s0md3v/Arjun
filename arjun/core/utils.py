@@ -77,8 +77,9 @@ def stable_request(url, headers):
                 verify=False,
                 timeout=10,
                 allow_redirects=redirects_allowed)
-            if not response.headers.get('Content-Type', '').startswith('text/'):
-                print('%s URL doesn\'t seem to be a webpage. Skipping.' % info)
+            content = response.headers.get('Content-Type', '')
+            if not ('text' in content or 'html' in content or 'json' in content or 'xml' in content):
+                print('%s URL doesn\t seem to be a webpage. Skipping.' % info)
                 return None
             return response.url
         except Exception as e:
