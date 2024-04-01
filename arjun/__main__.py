@@ -162,7 +162,7 @@ def initialize(request, wordlist, single_url=False):
             if len(param_groups) > prev_chunk_count:
                 response_3 = requester(request, {zzuf[:-1]: zzuf[::-1][:-1]})
                 if compare(response_3, factors, {zzuf[:-1]: zzuf[::-1][:-1]})[0] != '':
-                    print('%s Webpage is returning different content on each request. Try the --stable switch.' % bad)
+                    print('%s Webpage is returning different content on each request. Skipping.' % bad)
                     return []
             if mem.var['kill']:
                 return 'skipped'
@@ -193,7 +193,7 @@ def main():
             url = request['url']
             these_params = initialize(request, wordlist, single_url=True)
             if these_params == 'skipped':
-                print('%s Skipped %s due to errors' % (bad, request['url']))
+                print('%s Skipped %s due to errors' % (bad, url))
             elif these_params:
                 final_result[url] = {}
                 final_result[url]['params'] = these_params
