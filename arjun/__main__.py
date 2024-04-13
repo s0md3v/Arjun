@@ -135,11 +135,11 @@ def initialize(request, wordlist, single_url=False):
         factors = define(response_1, response_2, fuzz, fuzz[::-1], wordlist)
         zzuf = "z" + random_str(6)
         response_3 = requester(request, {zzuf[:-1]: zzuf[::-1][:-1]})
-        while factors:
+        while True:
             reason = compare(response_3, factors, {zzuf[:-1]: zzuf[::-1][:-1]})[2]
             if not reason:
                 break
-            factors[reason] = []
+            factors[reason] = False
         if single_url:
             print('%s Analysing HTTP response for potential parameter names' % run)
         if found:
