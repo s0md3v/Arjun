@@ -95,9 +95,11 @@ def urls_import(path, method, headers, include):
 def request_import(path):
     """
     imports request from a raw request file
-    returns dict
+    returns list
     """
-    return parse_request(reader(path))
+    result = []
+    result.append(parse_request(reader(path)))
+    return result
 
 
 def importer(path, method, headers, include):
@@ -112,4 +114,4 @@ def importer(path, method, headers, include):
                 return urls_import(path, method, headers, include)
             elif line.startswith(('GET', 'POST')):
                 return request_import(path)
-            return 'unknown'
+            return []
