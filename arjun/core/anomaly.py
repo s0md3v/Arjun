@@ -13,15 +13,15 @@ def define(response_1, response_2, param, value, wordlist):
     returns dict
     """
     factors = {
-        'same_code': False, # if http status code is same, contains that code
-        'same_body': False, # if http body is same, contains that body
-        'same_plaintext': False, # if http body isn't same but is same after removing html, contains that non-html text
-        'lines_num': False, # if number of lines in http body is same, contains that number
-        'lines_diff': False, # if http-body or plaintext aren't and there are more than two lines, contain which lines are same
-        'same_headers': False, # if the headers are same, contains those headers
-        'same_redirect': False, # if both requests redirect in similar manner, contains that redirection
-        'param_missing': False, # if param name is missing from the body, contains words that are already there
-        'value_missing': False # contains whether param value is missing from the body
+        'same_code': None, # if http status code is same, contains that code
+        'same_body': None, # if http body is same, contains that body
+        'same_plaintext': None, # if http body isn't same but is same after removing html, contains that non-html text
+        'lines_num': None, # if number of lines in http body is same, contains that number
+        'lines_diff': None, # if http-body or plaintext aren't and there are more than two lines, contain which lines are same
+        'same_headers': None, # if the headers are same, contains those headers
+        'same_redirect': None, # if both requests redirect in similar manner, contains that redirection
+        'param_missing': None, # if param name is missing from the body, contains words that are already there
+        'value_missing': None # contains whether param value is missing from the body
     }
     if type(response_1) == type(response_2) == requests.models.Response:
         body_1, body_2 = response_1.text, response_2.text
@@ -61,33 +61,33 @@ def compare(response, factors, params):
         return ('', [], '')
     these_headers = list(response.headers.keys())
     these_headers.sort()
-    if factors['same_code'] and response.status_code != factors['same_code']:
+    if factors['same_code'] is not None and response.status_code != factors['same_code']:
         return ('http code', params, 'same_code')
-    if factors['same_headers'] and these_headers != factors['same_headers']:
+    if factors['same_headers'] is not None and these_headers != factors['same_headers']:
         return ('http headers', params, 'same_headers')
     if mem.var['disable_redirects']:
-        if factors['same_redirect'] and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
+        if factors['same_redirect'] is not None and urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
             return ('redirection', params, 'same_redirect')
-    elif factors['same_redirect'] and 'Location' in response.headers:
+    elif factors['same_redirect'] is not None and 'Location' in response.headers:
         if urlparse(response.headers.get('Location', '')).path != factors['same_redirect']:
             return ('redirection', params, 'same_redirect')
-    if factors['same_body'] and response.text != factors['same_body']:
+    if factors['same_body'] is not None and response.text != factors['same_body']:
         return ('body length', params, 'same_body')
-    if factors['lines_num'] and response.text.count('\n') != factors['lines_num']:
+    if factors['lines_num'] is not None and response.text.count('\n') != factors['lines_num']:
         return ('number of lines', params, 'lines_num')
-    if factors['same_plaintext'] and remove_tags(response.text) != factors['same_plaintext']:
+    if factors['same_plaintext'] is not None and remove_tags(response.text) != factors['same_plaintext']:
         return ('text length', params, 'same_plaintext')
-    if factors['lines_diff']:
+    if factors['lines_diff'] is not None:
         for line in factors['lines_diff']:
             if line not in response.text:
                 return ('lines', params, 'lines_diff')
-    if type(factors['param_missing']) == list:
+    if factors['param_missing'] is not None:
         for param in params.keys():
             if len(param) < 5:
                 continue
             if param not in factors['param_missing'] and re.search(r'[\'"\s]%s[\'"\s]' % re.escape(param), response.text):
                 return ('param name reflection', params, 'param_missing')
-    if factors['value_missing']:
+    if factors['value_missing'] is not None:
         for value in params.values():
             if type(value) != str or len(value) != 6:
                 continue
