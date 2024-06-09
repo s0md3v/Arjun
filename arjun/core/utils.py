@@ -248,7 +248,7 @@ def fetch_params(host):
 def prepare_requests(args):
     """
     creates a list of request objects used by Arjun from targets given by user
-    returns list (of targs)
+    returns list (of targets)
     """
     headers = {
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0',
@@ -258,6 +258,7 @@ def prepare_requests(args):
         'Connection': 'close',
         'Upgrade-Insecure-Requests': '1'
     }
+    result = []
     if type(args.headers) == str:
         headers = extract_headers(args.headers)
     elif args.headers:
@@ -266,15 +267,17 @@ def prepare_requests(args):
         headers['Content-type'] = 'application/json'
     if args.url:
         params = get_params(args.include)
-        return {
-            'url': args.url,
-            'method': mem.var['method'],
-            'headers': headers,
-            'include': params
-        }
+        result.append(
+            {
+                'url': args.url,
+                'method': mem.var['method'],
+                'headers': headers,
+                'include': params
+            }
+        ) 
     elif args.import_file:
-        return importer(args.import_file, mem.var['method'], headers, args.include)
-    return []
+        result = importer(args.import_file, mem.var['method'], headers, args.include)
+    return result
 
 
 def nullify(*args, **kwargs):

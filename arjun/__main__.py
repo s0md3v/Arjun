@@ -182,16 +182,21 @@ def initialize(request, wordlist, single_url=False):
 
 
 def main():
-    request = prepare_requests(args)
+    requests = prepare_requests(args)
 
     final_result = {}
+    is_single = False if args.import_file else True
 
     try:
-        if type(request) == dict:
-            # in case of a single target
-            mem.var['kill'] = False
+        mem.var['kill'] = False
+        count = 0
+        for request in requests:
             url = request['url']
-            these_params = initialize(request, wordlist, single_url=True)
+            these_params = initialize(request, wordlist, single_url=is_single)
+            count += 1
+            mem.var['kill'] = False
+            mem.var['bad_req_count'] = 0
+            print('%s Scanning %d/%d: %s' % (run, count, len(requests), url))
             if these_params == 'skipped':
                 print('%s Skipped %s due to errors' % (bad, url))
             elif these_params:
@@ -199,34 +204,13 @@ def main():
                 final_result[url]['params'] = these_params
                 final_result[url]['method'] = request['method']
                 final_result[url]['headers'] = request['headers']
-                print('%s Parameters found: %s' % (good, ', '.join(final_result[url]['params'])))
                 exporter(final_result)
+                print('%s Parameters found: %s\n' % (good, ', '.join(final_result[url]['params'])))
+                if not mem.var['json_file']:
+                    final_result = {}
+                    continue
             else:
-                print('%s No parameters were discovered.' % info)
-        elif type(request) == list:
-            # in case of multiple targets
-            count = 0
-            for each in request:
-                count += 1
-                url = each['url']
-                mem.var['kill'] = False
-                mem.var['bad_req_count'] = 0
-                print('%s Scanning %d/%d: %s' % (run, count, len(request), url))
-                these_params = initialize(each, list(wordlist))
-                if these_params == 'skipped':
-                    print('%s Skipped %s due to errors' % (bad, url))
-                elif these_params:
-                    final_result[url] = {}
-                    final_result[url]['params'] = these_params
-                    final_result[url]['method'] = each['method']
-                    final_result[url]['headers'] = each['headers']
-                    exporter(final_result)
-                    print('%s Parameters found: %s\n' % (good, ', '.join(final_result[url]['params'])))
-                    if not mem.var['json_file']:
-                        final_result = {}
-                        continue
-                else:
-                    print('%s No parameters were discovered.\n' % info)
+                print('%s No parameters were discovered.\n' % info)
     except KeyboardInterrupt:
         exit()
 
