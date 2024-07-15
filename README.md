@@ -60,6 +60,18 @@ or, by downloading this repository and running
 python3 setup.py install
 ```
 
+#### Using Docker
+You can also build and run arjun using Docker. Follow these steps:
+
+##### Build the Docker image:
+
+First, make sure you are in the root directory of the project where the Dockerfile is located. Then, build the Docker image with the following command:
+
+```
+docker build -t arjun-image .
+```
+
+
 ### How to use Arjun?
 
 A detailed usage guide is available on [Usage](https://github.com/s0md3v/Arjun/wiki/Usage) section of the Wiki.
@@ -72,6 +84,22 @@ Direct links to some basic options are given below:
 - [Use custom HTTP headers](https://github.com/s0md3v/Arjun/wiki/Usage#use-custom-http-headers)
 
 Optionally, you can use the `--help` argument to explore Arjun on your own.
+
+#### Run in Docker container:
+
+After building the image, you can run the container with:
+```
+docker run --rm -it arjun-image [normal command]
+```
+
+> **Note**
+The --rm flag ensures that the container is removed after it exits, and -it makes the container interactive, allowing you to use it as a terminal.
+
+If you need to pass specific commands or arguments to arjun, you can do so by appending them to the docker run command. For example:
+
+```
+docker run --rm -it arjun-image -u https://example.com
+```
 
 ##### Credits
 The parameter names wordlist is created by extracting top parameter names from [CommonCrawl](http://commoncrawl.org) dataset and merging best words from [SecLists](https://github.com/danielmiessler/SecLists) and [param-miner](https://github.com/PortSwigger/param-miner) wordlists into that.\
