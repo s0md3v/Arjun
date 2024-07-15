@@ -5,7 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the necessary files to the container
-COPY . /app
+COPY arjun /app
 
 # Install the dependencies and run setup.py
 RUN python3 setup.py install
