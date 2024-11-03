@@ -2,6 +2,7 @@ import requests
 
 from urllib.parse import urlparse
 
+
 def wayback(host, page):
 	payload = {
 		'url': host,

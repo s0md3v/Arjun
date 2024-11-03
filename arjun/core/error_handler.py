@@ -4,6 +4,7 @@ import arjun.core.config as mem
 
 from arjun.core.colors import bad
 
+
 def connection_refused():
 	"""
 	checks if a request should be retried if the server refused connection
@@ -17,6 +18,7 @@ def connection_refused():
 	print('%s Target has rate limiting in place, please use --stable switch' % bad)
 	return 'kill'
 
+
 def error_handler(response, factors):
 	"""
 	decides what to do after performing a HTTP request
@@ -26,6 +28,8 @@ def error_handler(response, factors):
 	returns str
 	"""
 	if type(response) != str and response.status_code in (400, 413, 418, 429, 503):
+		if not mem.var['healthy_url']:
+			return 'ok'
 		if response.status_code == 503:
 			mem.var['kill'] = True
 			print('%s Target is unable to process requests, try --stable switch' % bad)

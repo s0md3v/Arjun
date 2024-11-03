@@ -11,8 +11,10 @@ re_inputs = re.compile(r'''(?i)<(?:input|textarea)[^>]+?(?:id|name)=["']?([^"'\s
 re_empty_vars = re.compile(r'''(?:[;\n]|\bvar|\blet)(\w+)\s*=\s*(?:['"`]{1,2}|true|false|null)''')
 re_map_keys = re.compile(r'''['"](\w+?)['"]\s*:\s*['"`]''')
 
+
 def is_not_junk(param):
     return (re_not_junk.match(param) is not None)
+
 
 def heuristic(raw_response, wordlist):
     words_exist = False

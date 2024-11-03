@@ -1,5 +1,18 @@
 import re
 
+burp_regex = re.compile(r'''(?m)^    <url><!\[CDATA\[(.+?)\]\]></url>
+    <host ip="[^"]*">[^<]+</host>
+    <port>[^<]*</port>
+    <protocol>[^<]*</protocol>
+    <method><!\[CDATA\[(.+?)\]\]></method>
+    <path>.*</path>
+    <extension>(.*)</extension>
+    <request base64="(?:false|true)"><!\[CDATA\[([\s\S]+?)]]></request>
+    <status>([^<]*)</status>
+    <responselength>([^<]*)</responselength>
+    <mimetype>([^<]*)</mimetype>''')
+
+
 def reader(path, mode='string'):
     """
     reads a file
@@ -10,6 +23,7 @@ def reader(path, mode='string'):
             return list(filter(None, [line.rstrip('\n') for line in file]))
         else:
             return ''.join([line for line in file])
+
 
 def parse_request(string):
     """
@@ -25,6 +39,7 @@ def parse_request(string):
     result['data'] = match.group(4)
     return result
 
+
 def parse_headers(string):
     """
     parses headers
@@ -36,18 +51,6 @@ def parse_headers(string):
             splitted = line.split(':')
             result[splitted[0]] = ':'.join(splitted[1:]).strip()
     return result
-
-burp_regex = re.compile(r'''(?m)^    <url><!\[CDATA\[(.+?)\]\]></url>
-    <host ip="[^"]*">[^<]+</host>
-    <port>[^<]*</port>
-    <protocol>[^<]*</protocol>
-    <method><!\[CDATA\[(.+?)\]\]></method>
-    <path>.*</path>
-    <extension>(.*)</extension>
-    <request base64="(?:false|true)"><!\[CDATA\[([\s\S]+?)]]></request>
-    <status>([^<]*)</status>
-    <responselength>([^<]*)</responselength>
-    <mimetype>([^<]*)</mimetype>''')
 
 
 def burp_import(path):

@@ -1,3 +1,9 @@
+#### 2.2.7
+- Added `--casing` option for casing style enforcement
+- Added `--ratelimit` option for explicitly defining requests/second
+- Fixed "decrease chunk size/use --stable" type errors in some cases
+- Fixed a bug in anamoly detection
+
 #### 2.2.6
 - Fixed Arjun getting infinitely stuck on some webpages
 

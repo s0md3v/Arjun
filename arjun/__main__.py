@@ -13,6 +13,7 @@ from arjun.core.anomaly import define, compare
 from arjun.core.utils import fetch_params, stable_request, random_str, slicer, confirm, populate, reader, nullify, prepare_requests, compatible_path
 
 from arjun.plugins.heuristic import heuristic
+from arjun.plugins.wl import detect_casing, covert_to_case
 
 arjun_dir = compatible_path(mem.__file__.replace(compatible_path('/core/config.py'), ''))
 
@@ -25,7 +26,7 @@ parser.add_argument('-oB', help='Output to Burp Suite Proxy. Default is 127.0.0.
 parser.add_argument('-d', help='Delay between requests in seconds. (default: 0)', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='Number of concurrent threads. (default: 5)', dest='threads', type=int, default=5)
 parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/large.txt)', dest='wordlist', default=arjun_dir+'/db/large.txt')
-parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON/HEADERS. (default: GET)', dest='method', default='GET')
+parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON. (default: GET)', dest='method', default='GET')
 parser.add_argument('-i', help='Import target URLs from file.', dest='import_file', nargs='?', const=True)
 parser.add_argument('-T', help='HTTP request timeout in seconds. (default: 15)', dest='timeout', type=float, default=15)
 parser.add_argument('-c', help='Chunk size. The number of parameters to be sent at once', type=int, dest='chunks', default=250)
@@ -36,6 +37,7 @@ parser.add_argument('--passive', help='Collect parameter names from passive sour
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
 parser.add_argument('--disable-redirects', help='disable redirects', dest='disable_redirects', action='store_true')
+parser.add_argument('--casing', help='casing style for params e.g. like_this, likeThis, likethis', dest='casing')
 args = parser.parse_args() # arguments to be parsed
 
 if args.quiet:
@@ -77,7 +79,11 @@ try:
         passive_params = fetch_params(host)
         wordlist.update(passive_params)
         print('%s Collected %s parameters, added to the wordlist' % (info, len(passive_params)))
-    wordlist = list(wordlist)
+    if args.casing:
+        delimiter, casing = detect_casing(args.casing)
+        wordlist = [covert_to_case(word, delimiter, casing) for word in wordlist]
+    else:
+        wordlist = list(wordlist)
 except FileNotFoundError:
     exit('%s The specified file for parameters doesn\'t exist' % bad)
 
@@ -118,11 +124,15 @@ def initialize(request, wordlist, single_url=False):
         return 'skipped'
     print('%s Probing the target for stability' % run)
     request['url'] = stable_request(url, request['headers'])
+    mem.var['healthy_url'] = True
     if not request['url']:
         return 'skipped'
     else:
         fuzz = "z" + random_str(6)
         response_1 = requester(request, {fuzz[:-1]: fuzz[::-1][:-1]})
+        mem.var['healthy_url'] = response_1.status_code not in (400, 413, 418, 429, 503)
+        if not mem.var['healthy_url']:
+            print('%s Target returned HTTP %i, this may cause problems.' % (bad, request.status_code))
         if single_url:
             print('%s Analysing HTTP response for anomalies' % run)
         response_2 = requester(request, {fuzz[:-1]: fuzz[::-1][:-1]})
@@ -139,16 +149,14 @@ def initialize(request, wordlist, single_url=False):
             reason = compare(response_3, factors, {zzuf[:-1]: zzuf[::-1][:-1]})[2]
             if not reason:
                 break
-            factors[reason] = False
-        if single_url:
-            print('%s Analysing HTTP response for potential parameter names' % run)
+            factors[reason] = None
         if found:
             num = len(found)
             if words_exist:
-                 print('%s Heuristic scanner found %i parameters' % (good, num))
+                print('%s Extracted %i parameters from response for testing' % (good, num))
             else:
                 s = 's' if num > 1 else ''
-                print('%s Heuristic scanner found %i parameter%s: %s' % (good, num, s, ', '.join(found)))
+                print('%s Extracted %i parameter%s from response for testing: %s' % (good, num, s, ', '.join(found)))
         if single_url:
             print('%s Logicforcing the URL endpoint' % run)
         populated = populate(wordlist)
@@ -192,11 +200,11 @@ def main():
         count = 0
         for request in requests:
             url = request['url']
+            print('%s Scanning %d/%d: %s' % (run, count, len(requests), url))
             these_params = initialize(request, wordlist, single_url=is_single)
             count += 1
             mem.var['kill'] = False
             mem.var['bad_req_count'] = 0
-            print('%s Scanning %d/%d: %s' % (run, count, len(requests), url))
             if these_params == 'skipped':
                 print('%s Skipped %s due to errors' % (bad, url))
             elif these_params:
@@ -205,7 +213,7 @@ def main():
                 final_result[url]['method'] = request['method']
                 final_result[url]['headers'] = request['headers']
                 exporter(final_result)
-                print('%s Parameters found: %s\n' % (good, ', '.join(final_result[url]['params'])))
+                print('%s Parameters found: %-4s\n' % (good, ', '.join(final_result[url]['params'])))
                 if not mem.var['json_file']:
                     final_result = {}
                     continue

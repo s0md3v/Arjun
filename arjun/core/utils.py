@@ -153,7 +153,7 @@ def create_query_string(params):
         pair = param + '=' + random_str(4) + '&'
         query_string += pair
     if query_string.endswith('&'):
-	    query_string = query_string[:-1]
+        query_string = query_string[:-1]
     return '?' + query_string
 
 
@@ -179,6 +179,7 @@ def extract_js(response):
         if len(actual_parts) > 1:
             scripts.append(actual_parts[0])
     return scripts
+
 
 def parse_headers(string):
     """
@@ -274,7 +275,7 @@ def prepare_requests(args):
                 'headers': headers,
                 'include': params
             }
-        ) 
+        )
     elif args.import_file:
         result = importer(args.import_file, mem.var['method'], headers, args.include)
     return result

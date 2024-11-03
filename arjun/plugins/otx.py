@@ -2,6 +2,7 @@ import requests
 
 from urllib.parse import urlparse
 
+
 def otx(host, page):
 	these_params = set()
 	data = requests.get('https://otx.alienvault.com/api/v1/indicators/hostname/%s/url_list?limit=50&page=%d' % (host, page+1), verify=False).json()

@@ -6,12 +6,14 @@ from arjun.core.utils import populate
 
 from arjun.core.utils import create_query_string
 
+
 def json_export(result):
     """
     exports result to a file in JSON format
     """
     with open(mem.var['json_file'], 'w+', encoding='utf8') as json_output:
         json.dump(result, json_output, sort_keys=True, indent=4)
+
 
 def burp_export(result):
     """
@@ -30,6 +32,7 @@ def burp_export(result):
         elif data['method'] == 'JSON':
             requests.post(url, json=populate(data['params']), headers=data['headers'], proxies=proxies, verify=False)
 
+
 def text_export(result):
     """
     exports results to a text file, one url per line
@@ -47,6 +50,7 @@ def text_export(result):
                     text_file.write(clean_url + query_string + '\n')
                 elif data['method'] == 'POST':
                     text_file.write(clean_url + '\t' + query_string + '\n')
+
 
 def exporter(result):
     """

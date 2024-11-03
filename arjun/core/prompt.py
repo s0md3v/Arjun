@@ -1,6 +1,7 @@
 import os
 import tempfile
 
+
 def prompt(default=None):
     """
     lets user paste input by opening a temp file in a text editor
