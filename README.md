@@ -48,17 +48,11 @@ The best part? It takes less than 10 seconds to go through this huge list while 
 - Can passively extract parameters from JS or 3 external sources
 
 ### Installing Arjun
-
-
-You can install `arjun` with pip as following:
+The recommended way to install `arjun` is as following:
 ```
-pip3 install arjun
+pipx install arjun
 ```
-
-or, by downloading this repository and running
-```
-python3 setup.py install
-```
+> Note: If you are using an old version of python, use pip instead of pipx.
 
 ### How to use Arjun?
 
