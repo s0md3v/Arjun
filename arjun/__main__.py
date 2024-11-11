@@ -132,7 +132,7 @@ def initialize(request, wordlist, single_url=False):
         response_1 = requester(request, {fuzz[:-1]: fuzz[::-1][:-1]})
         mem.var['healthy_url'] = response_1.status_code not in (400, 413, 418, 429, 503)
         if not mem.var['healthy_url']:
-            print('%s Target returned HTTP %i, this may cause problems.' % (bad, request.status_code))
+            print('%s Target returned HTTP %i, this may cause problems.' % (bad, response_1.status_code))
         if single_url:
             print('%s Analysing HTTP response for anomalies' % run)
         response_2 = requester(request, {fuzz[:-1]: fuzz[::-1][:-1]})
