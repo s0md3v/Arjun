@@ -130,6 +130,8 @@ def initialize(request, wordlist, single_url=False):
     else:
         fuzz = "z" + random_str(6)
         response_1 = requester(request, {fuzz[:-1]: fuzz[::-1][:-1]})
+        if(isinstance(response_1, str)):
+            return 'skipped'
         mem.var['healthy_url'] = response_1.status_code not in (400, 413, 418, 429, 503)
         if not mem.var['healthy_url']:
             print('%s Target returned HTTP %i, this may cause problems.' % (bad, response_1.status_code))
