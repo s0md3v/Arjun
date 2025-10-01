@@ -23,7 +23,9 @@ def heuristic(raw_response, wordlist):
     headers, response = raw_response.headers, raw_response.text
     if headers.get('content-type', '').startswith(('application/json', 'text/plain')):
         if len(response) < 200:
-            if ('required' or 'missing' or 'not found' or 'requires') in response.lower() and ('param' or 'parameter' or 'field') in response.lower():
+            resp = response.lower()
+            if any(word in resp for word in ['required', 'missing', 'not found', 'requires']) and any(word in resp for word in ['param', 'parameter', 'field']):
+
                 if not mem.var['quiet']:
                     print('%s The endpoint seems to require certain parameters to function. Check the response and use the --include option appropriately for better results.' % info)
             words_exist = True
