@@ -37,6 +37,7 @@ parser.add_argument('--passive', help='Collect parameter names from passive sour
 parser.add_argument('--stable', help='Prefer stability over speed.', dest='stable', action='store_true')
 parser.add_argument('--include', help='Include this data in every request.', dest='include', default={})
 parser.add_argument('--disable-redirects', help='disable redirects', dest='disable_redirects', action='store_true')
+parser.add_argument('--force', help='Force scan even if URL doesn\'t seem to be a webpage', dest='force', action='store_true')
 parser.add_argument('--casing', help='casing style for params e.g. like_this, likeThis, likethis', dest='casing')
 args = parser.parse_args() # arguments to be parsed
 

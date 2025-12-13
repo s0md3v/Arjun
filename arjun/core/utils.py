@@ -79,8 +79,9 @@ def stable_request(url, headers):
                 allow_redirects=redirects_allowed)
             content = response.headers.get('Content-Type', '')
             if not ('text' in content or 'html' in content or 'json' in content or 'xml' in content):
-                print('%s URL doesn\'t seem to be a webpage. Skipping.' % info)
-                return None
+                if not mem.var.get('force', False):
+                    print('%s URL doesn\'t seem to be a webpage. Skipping.' % info)
+                    return None
             return response.url
         except Exception as e:
             if 'ConnectionError' not in str(e):
