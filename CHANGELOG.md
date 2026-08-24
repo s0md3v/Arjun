@@ -1,4 +1,5 @@
 #### 2.2.7
+- Added `-oR` option to export results as raw HTTP requests
 - Added `--casing` option for casing style enforcement
 - Added `--ratelimit` option for explicitly defining requests/second
 - Fixed "decrease chunk size/use --stable" type errors in some cases
