@@ -22,6 +22,7 @@ parser = argparse.ArgumentParser() # defines the parser
 parser.add_argument('-u', help='Target URL', dest='url')
 parser.add_argument('-o', '-oJ', help='Path for json output file.', dest='json_file')
 parser.add_argument('-oT', help='Path for text output file.', dest='text_file')
+parser.add_argument('-oR', help='Path for raw HTTP request output file.', dest='raw_file')
 parser.add_argument('-oB', help='Output to Burp Suite Proxy. Default is 127.0.0.1:8080.', dest='burp_proxy', nargs='?', const='127.0.0.1:8080')
 parser.add_argument('-d', help='Delay between requests in seconds. (default: 0)', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='Number of concurrent threads. (default: 5)', dest='threads', type=int, default=5)

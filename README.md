@@ -43,7 +43,7 @@ The best part? It takes less than 10 seconds to go through this huge list while 
 
 - Supports `GET/POST/POST-JSON/POST-XML` requests
 - Automatically handles rate limits and timeouts
-- Export results to: BurpSuite, text or JSON file
+- Export results to: BurpSuite, text, JSON file or raw HTTP requests
 - Import targets from: BurpSuite, text file or a raw request file
 - Can passively extract parameters from JS or 3 external sources
 
