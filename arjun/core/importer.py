@@ -90,7 +90,7 @@ def urls_import(path, method, headers, include):
             'url': url,
             'method': method,
             'headers': headers,
-            'data': include
+            'include': include
         })
     return requests
 

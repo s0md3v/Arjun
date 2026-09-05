@@ -27,7 +27,9 @@ def error_handler(response, factors):
 		'kill': stop processing this target
 	returns str
 	"""
-	if type(response) != str and response.status_code in (400, 413, 418, 429, 503):
+	if not isinstance(response, str) and response.status_code not in (400, 413, 418, 429, 503):
+		return 'ok'
+	if not isinstance(response, str) and response.status_code in (400, 413, 418, 429, 503):
 		if not mem.var['healthy_url']:
 			return 'ok'
 		if response.status_code == 503:
@@ -46,7 +48,7 @@ def error_handler(response, factors):
 					return 'kill'
 			else:
 				return 'ok'
-	else:
+	elif isinstance(response, str):
 		if 'Timeout' in response:
 			if mem.var['timeout'] > 20:
 				mem.var['kill'] = True
@@ -59,7 +61,7 @@ def error_handler(response, factors):
 				return 'retry'
 		elif 'ConnectionRefused' in response:
 			return connection_refused()
-		elif type(response) == str:
+		else:
 			if '\'' in response:
 				print('%s Encountered an error: %s' % (bad, response.split('\'')[1]))
 			return 'kill'

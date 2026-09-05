@@ -26,7 +26,7 @@ parser.add_argument('-oB', help='Output to Burp Suite Proxy. Default is 127.0.0.
 parser.add_argument('-d', help='Delay between requests in seconds. (default: 0)', dest='delay', type=float, default=0)
 parser.add_argument('-t', help='Number of concurrent threads. (default: 5)', dest='threads', type=int, default=5)
 parser.add_argument('-w', help='Wordlist file path. (default: {arjundir}/db/large.txt)', dest='wordlist', default=arjun_dir+'/db/large.txt')
-parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON. (default: GET)', dest='method', default='GET')
+parser.add_argument('-m', help='Request method to use: GET/POST/XML/JSON. (default: GET)', dest='method', type=str.upper, choices=('GET', 'POST', 'XML', 'JSON'), default='GET')
 parser.add_argument('-i', help='Import target URLs from file.', dest='import_file', nargs='?', const=True)
 parser.add_argument('-T', help='HTTP request timeout in seconds. (default: 15)', dest='timeout', type=float, default=15)
 parser.add_argument('-c', help='Chunk size. The number of parameters to be sent at once', type=int, dest='chunks', default=250)
@@ -87,8 +87,20 @@ try:
 except FileNotFoundError:
     exit('%s The specified file for parameters doesn\'t exist' % bad)
 
+if not wordlist:
+    exit('%s The parameter wordlist is empty' % bad)
+if mem.var['threads'] < 1:
+    parser.error('-t/--threads must be at least 1')
+if mem.var['chunks'] < 1:
+    parser.error('-c/--chunks must be at least 1')
+if mem.var['rate_limit'] < 1:
+    parser.error('--rate-limit must be at least 1')
+if mem.var['delay'] < 0:
+    parser.error('-d/--delay cannot be negative')
+if mem.var['timeout'] <= 0:
+    parser.error('-T/--timeout must be greater than 0')
 if len(wordlist) < mem.var['chunks']:
-    mem.var['chunks'] = int(len(wordlist)/2)
+    mem.var['chunks'] = max(1, int(len(wordlist) / 2))
 
 if not args.url and not args.import_file:
     exit('%s No target(s) specified' % bad)
@@ -119,7 +131,8 @@ def initialize(request, wordlist, single_url=False):
     returns 'skipped' (on error), list on success
     """
     url = request['url']
-    if not url.startswith('http'):
+    parsed_url = urlparse(url)
+    if parsed_url.scheme not in ('http', 'https') or not parsed_url.netloc:
         print('%s %s is not a valid URL' % (bad, url))
         return 'skipped'
     print('%s Probing the target for stability' % run)
@@ -199,12 +212,10 @@ def main():
 
     try:
         mem.var['kill'] = False
-        count = 0
-        for request in requests:
+        for count, request in enumerate(requests, start=1):
             url = request['url']
             print('%s Scanning %d/%d: %s' % (run, count, len(requests), url))
             these_params = initialize(request, wordlist, single_url=is_single)
-            count += 1
             mem.var['kill'] = False
             mem.var['bad_req_count'] = 0
             if these_params == 'skipped':

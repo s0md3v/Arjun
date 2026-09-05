@@ -19,8 +19,8 @@
   <a href="https://github.com/s0md3v/Arjun/issues?q=is%3Aissue+is%3Aclosed">
       <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/Arjun?color=dark-green&label=issues%20fixed">
   </a>
-  <a href="https://travis-ci.com/s0md3v/Arjun">
-      <img src="https://img.shields.io/travis/com/s0md3v/Arjun.svg?color=dark-green&label=tests">
+  <a href="https://github.com/s0md3v/Arjun/actions/workflows/tests.yml">
+      <img src="https://github.com/s0md3v/Arjun/actions/workflows/tests.yml/badge.svg" alt="tests">
   </a>
 </p>
 
@@ -54,6 +54,19 @@ pipx install arjun
 ```
 > Note: If you are using an old version of python, use pip instead of pipx.
 
+Arjun supports Python 3.8 and newer.
+
+### Development
+
+Install the project and run its regression tests with:
+
+```bash
+python -m pip install -e .
+python -m unittest discover -v
+```
+
+The same suite runs automatically on Python 3.8, 3.11, and 3.14 through GitHub Actions.
+
 ### How to use Arjun?
 
 A detailed usage guide is available on [Usage](https://github.com/s0md3v/Arjun/wiki/Usage) section of the Wiki.
@@ -70,3 +83,5 @@ Optionally, you can use the `--help` argument to explore Arjun on your own.
 ##### Credits
 The parameter names wordlist is created by extracting top parameter names from [CommonCrawl](http://commoncrawl.org) dataset and merging best words from [SecLists](https://github.com/danielmiessler/SecLists) and [param-miner](https://github.com/PortSwigger/param-miner) wordlists into that.\
 `db/special.json` wordlist is taken from [data-payloads](https://github.com/yehgdotnet/data-payloads).
+
+Reliability fixes and automated testing were contributed by [@Gh0stlyKn1ght](https://github.com/Gh0stlyKn1ght).

@@ -14,17 +14,21 @@ warnings.filterwarnings('ignore') # Disable SSL related warnings
 
 @sleep_and_retry
 @limits(calls=mem.var['rate_limit'], period=1)
-def requester(request, payload={}):
+def requester(request, payload=None):
     """
     central function for making http requests
     returns str on error otherwise response object of requests library
     """
-    if request.get('include') and len(request.get('include', '')) != 0:
+    # Each request must get its own payload. The previous mutable default and
+    # in-place update leaked included parameters into later requests.
+    payload = dict(payload or {})
+    if isinstance(request.get('include'), dict):
         payload.update(request['include'])
     if mem.var['stable']:
         mem.var['delay'] = random.choice(range(3, 10))
     time.sleep(mem.var['delay'])
     url = request['url']
+    allow_redirects = not mem.var['disable_redirects']
     if mem.var['kill']:
         return 'killed'
     try:
@@ -33,7 +37,7 @@ def requester(request, payload={}):
                 params=payload,
                 headers=request['headers'],
                 verify=False,
-                allow_redirects=False,
+                allow_redirects=allow_redirects,
                 timeout=mem.var['timeout'],
             )
         elif request['method'] == 'JSON':
@@ -45,7 +49,7 @@ def requester(request, payload={}):
                     data=payload,
                     headers=request['headers'],
                     verify=False,
-                    allow_redirects=False,
+                    allow_redirects=allow_redirects,
                     timeout=mem.var['timeout'],
                 )
             else:
@@ -53,18 +57,22 @@ def requester(request, payload={}):
                     json=payload,
                     headers=request['headers'],
                     verify=False,
-                    allow_redirects=False,
+                    allow_redirects=allow_redirects,
                     timeout=mem.var['timeout'],
                 )
         elif request['method'] == 'XML':
             request['headers']['Content-Type'] = 'application/xml'
-            payload = mem.var['include'].replace('$arjun$',
-                dict_to_xml(payload))
+            template = mem.var.get('include')
+            xml_payload = dict_to_xml(payload)
+            if isinstance(template, str) and '$arjun$' in template:
+                payload = template.replace('$arjun$', xml_payload)
+            else:
+                payload = xml_payload
             response = requests.post(url,
                 data=payload,
                 headers=request['headers'],
                 verify=False,
-                allow_redirects=False,
+                allow_redirects=allow_redirects,
                 timeout=mem.var['timeout'],
             )
         else:
@@ -72,7 +80,7 @@ def requester(request, payload={}):
                 data=payload,
                 headers=request['headers'],
                 verify=False,
-                allow_redirects=False,
+                allow_redirects=allow_redirects,
                 timeout=mem.var['timeout'],
             )
         return response

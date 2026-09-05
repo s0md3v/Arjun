@@ -16,11 +16,11 @@ setup(
     long_description_content_type='text/markdown',
     author='Somdev Sangwan',
     author_email='s0md3v@gmail.com',
-    license='GNU General Public License v3 (GPLv3)',
+    license='AGPL-3.0-only',
     url='https://github.com/s0md3v/Arjun',
     download_url='https://github.com/s0md3v/Arjun/archive/v%s.zip' % __import__('arjun').__version__,
     zip_safe=False,
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests', 'tests.*')),
     package_data={'arjun': ['db/*']},
     install_requires=[
         'requests',
@@ -33,8 +33,15 @@ setup(
         'Intended Audience :: Information Technology',
         'Operating System :: OS Independent',
         'Topic :: Security',
-        'License :: OSI Approved :: GNU Affero General Public License v3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
     ],
     entry_points={
         'console_scripts': [
@@ -42,4 +49,5 @@ setup(
         ]
     },
     keywords=['arjun', 'bug bounty', 'http', 'pentesting', 'security'],
+    python_requires='>=3.8',
 )
