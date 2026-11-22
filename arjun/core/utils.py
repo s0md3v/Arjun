@@ -79,8 +79,16 @@ def stable_request(url, headers):
                 allow_redirects=redirects_allowed)
             content = response.headers.get('Content-Type', '')
             if not ('text' in content or 'html' in content or 'json' in content or 'xml' in content):
-                print('%s URL doesn\'t seem to be a webpage. Skipping.' % info)
-                return None
+                # Not a typical text-ish content type (e.g. a download
+                # endpoint returning application/octet-stream, or no
+                # Content-Type at all) -- but nothing downstream actually
+                # requires text: anomaly detection diffs response.text
+                # (which `requests` always decodes to a string) and
+                # status/length, regardless of content type. Warn instead
+                # of aborting, since skipping here silently drops the
+                # whole URL from parameter discovery for no real reason.
+                print('%s URL doesn\'t look like a typical webpage (Content-Type: %r), continuing anyway.'
+                      % (info, content or '(none)'))
             return response.url
         except Exception as e:
             if 'ConnectionError' not in str(e):
